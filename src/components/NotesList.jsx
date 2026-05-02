@@ -4,7 +4,6 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useTheme } from "../context/ThemeContext";
 import { LIST_PAGE_SIZE } from "../constants/constants";
 import { queryKeys } from "../query/keys";
 import * as promptsApi from "../api/promptsApi";
@@ -38,12 +37,7 @@ function nextVoteState(note, voteType) {
   return { ...note, userVote, upvoteCount: up, downvoteCount: down };
 }
 
-export default function NotesList({
-  promptId,
-  promptOwnerId,
-  currentUserId,
-}) {
-  const theme = useTheme();
+export default function NotesList({ promptId, promptOwnerId, currentUserId }) {
   const queryClient = useQueryClient();
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -166,13 +160,7 @@ export default function NotesList({
   }, []);
 
   const handleSaveNote = (pId, nId, content) => {
-    if (!nId) {
-      addMutation.mutate(content);
-    }
-  };
-
-  const handleCancel = () => {
-    setIsAddingNote(false);
+    if (!nId) addMutation.mutate(content);
   };
 
   const formatDate = (timestamp) => {
@@ -192,7 +180,7 @@ export default function NotesList({
 
   const noteLabel =
     isExpanded && notesQuery.data
-      ? `${loadedCount} note${loadedCount !== 1 ? "s" : ""} loaded`
+      ? `${loadedCount} note${loadedCount !== 1 ? "s" : ""}`
       : "Notes";
 
   return (
@@ -200,7 +188,7 @@ export default function NotesList({
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`${theme.accentText} ${theme.accentTextHover} font-medium text-sm transition flex items-center gap-1 mb-3`}
+        className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm transition flex items-center gap-1 mb-3"
       >
         📝 {noteLabel}
         <span className="text-xs">{isExpanded ? "▼" : "▶"}</span>
@@ -209,7 +197,9 @@ export default function NotesList({
       {isExpanded && (
         <div className="space-y-3">
           {notesQuery.isPending ? (
-            <p className={`text-sm ${theme.textMuted}`}>Loading notes…</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Loading notes…
+            </p>
           ) : notesQuery.isError ? (
             <p className="text-sm text-red-600 dark:text-red-400">
               Could not load notes.
@@ -251,14 +241,14 @@ export default function NotesList({
               promptId={promptId}
               content=""
               onSave={handleSaveNote}
-              onCancel={handleCancel}
+              onCancel={() => setIsAddingNote(false)}
             />
           ) : (
             <button
               type="button"
               onClick={() => setIsAddingNote(true)}
               disabled={addMutation.isPending}
-              className={`w-full ${theme.accentBg} ${theme.accentHover} ${theme.accentText} py-2 rounded-lg text-sm font-medium transition hover:cursor-pointer disabled:opacity-50`}
+              className="w-full bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 text-orange-600 dark:text-orange-400 py-2 rounded-lg text-sm font-medium transition hover:cursor-pointer disabled:opacity-50"
             >
               + Add Note
             </button>

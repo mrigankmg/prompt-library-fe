@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTheme } from "../context/ThemeContext";
 import PromptMetadata from "./PromptMetadata";
 import StarRating from "./StarRating";
 import NotesList from "./NotesList";
@@ -12,7 +11,6 @@ export default function PromptCard({
   userId,
   onTogglePrivacy,
 }) {
-  const theme = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPrivate = true } = prompt;
 
@@ -22,10 +20,7 @@ export default function PromptCard({
 
   const handleTogglePrivacy = () => {
     setIsMenuOpen(false);
-    if (
-      isPrivate &&
-      confirm("Are you sure you want to make this prompt public?")
-    ) {
+    if (isPrivate && confirm("Are you sure you want to make this prompt public?")) {
       onTogglePrivacy(prompt.id, true);
     } else if (!isPrivate) {
       onTogglePrivacy(prompt.id, false);
@@ -43,22 +38,24 @@ export default function PromptCard({
   const showRating = !isPrivate && onRatingSubmit;
 
   return (
-    <div
-      className={`${theme.card} rounded-lg ${theme.shadow} p-6 hover:shadow-lg transition`}
-    >
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition">
       <div className="flex justify-between items-start mb-3">
         <div>
           {userId && userId !== prompt.userId && (
-            <p className={`text-xs ${theme.textMuted} mb-1`}>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">
               Shared by another user
             </p>
           )}
           <div className="flex items-center gap-2 mb-1">
-            <h3 className={`text-lg font-semibold ${theme.text}`}>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {prompt.title}
             </h3>
             <span
-              className={`text-xs font-medium px-2 py-1 rounded ${isPrivate ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300" : "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"}`}
+              className={`text-xs font-medium px-2 py-1 rounded ${
+                isPrivate
+                  ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  : "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
+              }`}
             >
               {isPrivate ? "🔒 Private" : "🔓 Public"}
             </span>
@@ -68,24 +65,22 @@ export default function PromptCard({
           <div className="relative">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`${theme.accentText} hover:opacity-70 transition p-2 hover:cursor-pointer`}
+              className="text-orange-600 dark:text-orange-400 hover:opacity-70 transition p-2 hover:cursor-pointer"
               title="Options"
             >
               ⋯
             </button>
             {isMenuOpen && (
-              <div
-                className={`absolute right-0 mt-2 w-48 ${theme.card} ${theme.border} border rounded-lg shadow-lg z-10`}
-              >
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-10">
                 <button
                   onClick={handleTogglePrivacy}
-                  className={`w-full text-left px-4 py-2 ${theme.text} hover:${theme.accentBg} transition flex items-center gap-2 border-b ${theme.border} hover:cursor-pointer`}
+                  className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 hover:cursor-pointer"
                 >
                   {isPrivate ? "🔓 Make public" : "🔒 Make private"}
                 </button>
                 <button
                   onClick={handleDelete}
-                  className={`w-full text-left px-4 py-2 ${theme.text} hover:${theme.accentBg} transition flex items-center gap-2 text-red-600 dark:text-red-400 hover:cursor-pointer`}
+                  className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 hover:cursor-pointer"
                 >
                   🗑️ Delete
                 </button>
@@ -94,12 +89,12 @@ export default function PromptCard({
           </div>
         )}
       </div>
-      <p className={`${theme.text} whitespace-pre-wrap line-clamp-4`}>
+      <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap line-clamp-4">
         {prompt.content}
       </p>
       <button
         onClick={handleCopy}
-        className={`mt-4 ${theme.accentText} ${theme.accentTextHover} font-medium text-sm transition hover:cursor-pointer`}
+        className="mt-4 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm transition hover:cursor-pointer"
       >
         📋 Copy to Clipboard
       </button>

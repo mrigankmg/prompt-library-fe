@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import { useTheme } from "./context/ThemeContext";
 import GuestRoute from "./components/GuestRoute";
 import Header from "./components/Header";
 import Login from "./components/Login";
@@ -8,11 +7,8 @@ import PromptLibrary from "./components/PromptLibrary";
 import "./App.css";
 
 export default function App() {
-  const theme = useTheme();
   return (
-    <div
-      className={`min-h-screen ${theme.bgGradient} transition-colors duration-200`}
-    >
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-200">
       <Header />
       <div className="py-8 px-4">
         <Routes>

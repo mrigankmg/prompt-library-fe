@@ -1,5 +1,3 @@
-import { useTheme } from "../context/ThemeContext";
-
 const VARIANT = {
   default: {
     wrapper: "border-t-2 pt-4",
@@ -28,7 +26,6 @@ export default function PaginationFooter({
   leading = null,
   className = "",
 }) {
-  const theme = useTheme();
   const v = VARIANT[variant] ?? VARIANT.default;
   const hasLeading = leading != null && leading !== false;
   const rowLayout = hasLeading
@@ -36,7 +33,9 @@ export default function PaginationFooter({
     : `flex items-center justify-center md:justify-end ${v.gap}`;
 
   return (
-    <div className={`${rowLayout} ${v.wrapper} ${theme.border} ${className}`}>
+    <div
+      className={`${rowLayout} ${v.wrapper} border-gray-300 dark:border-gray-700 ${className}`}
+    >
       {hasLeading && <div className="shrink-0">{leading}</div>}
       <div className="flex items-center gap-2">
         <button
@@ -45,7 +44,7 @@ export default function PaginationFooter({
           disabled={disablePrev !== undefined ? disablePrev : page <= 1}
           aria-label={prevAriaLabel}
           title={prevAriaLabel}
-          className={`inline-flex items-center justify-center transition hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${v.button} ${theme.border} ${theme.card} ${theme.text}`}
+          className={`inline-flex items-center justify-center transition hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${v.button} border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100`}
         >
           <svg
             className={v.icon}
@@ -62,9 +61,7 @@ export default function PaginationFooter({
             />
           </svg>
         </button>
-        <span
-          className={`min-w-[7rem] text-center text-sm ${theme.textSecondary}`}
-        >
+        <span className="min-w-[7rem] text-center text-sm text-gray-500 dark:text-gray-400">
           {totalPages != null && totalPages > 0
             ? `Page ${page} of ${totalPages}`
             : `Page ${page}`}
@@ -79,7 +76,7 @@ export default function PaginationFooter({
           }
           aria-label={nextAriaLabel}
           title={nextAriaLabel}
-          className={`inline-flex items-center justify-center transition hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${v.button} ${theme.border} ${theme.card} ${theme.text}`}
+          className={`inline-flex items-center justify-center transition hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${v.button} border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100`}
         >
           <svg
             className={v.icon}

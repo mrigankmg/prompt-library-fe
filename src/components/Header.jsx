@@ -1,40 +1,35 @@
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { THEME } from "../constants/constants";
 
 export default function Header() {
-  const theme = useTheme();
+  const { isDark, toggleTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
-    <header
-      className={`${theme.card} ${theme.border} border-b ${theme.shadow}`}
-    >
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700 shadow-md">
       <div className="max-w-4xl mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
-          {/* Home button and greeting */}
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/")}
-              className={`${theme.text} hover:opacity-70 hover:cursor-pointer transition text-xl`}
+              className="text-gray-900 dark:text-gray-100 hover:opacity-70 hover:cursor-pointer transition text-xl"
               title="Home"
             >
               🏠
             </button>
-            <p className={theme.textMuted}>
+            <p className="text-gray-600 dark:text-gray-300">
               {user ? `Hi ${user.first_name || "User"}!` : "Welcome!"}
             </p>
           </div>
 
-          {/* Auth buttons and theme toggle */}
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <button
                 type="button"
                 onClick={() => logout()}
-                className={`${theme.accentBg} ${theme.accentText} px-4 py-2 rounded-lg font-medium transition hover:opacity-90 hover:cursor-pointer`}
+                className="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-4 py-2 rounded-lg font-medium transition hover:opacity-90 hover:cursor-pointer"
               >
                 Logout
               </button>
@@ -42,24 +37,24 @@ export default function Header() {
               <>
                 <button
                   onClick={() => navigate("/login")}
-                  className={`${theme.border} border px-4 py-2 rounded-lg font-medium ${theme.text} transition hover:${theme.accentBg} hover:cursor-pointer`}
+                  className="border border-gray-300 dark:border-gray-700 px-4 py-2 rounded-lg font-medium text-gray-900 dark:text-gray-100 transition hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:cursor-pointer"
                 >
                   Login
                 </button>
                 <button
                   onClick={() => navigate("/register")}
-                  className={`${theme.accentBg} ${theme.accentText} px-4 py-2 rounded-lg font-medium transition hover:opacity-90 hover:cursor-pointer`}
+                  className="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-4 py-2 rounded-lg font-medium transition hover:opacity-90 hover:cursor-pointer"
                 >
                   Register
                 </button>
               </>
             )}
             <button
-              onClick={theme.toggleTheme}
-              className={`${theme.card} ${theme.shadow} p-3 rounded-lg transition-all hover:cursor-pointer`}
+              onClick={toggleTheme}
+              className="bg-white dark:bg-gray-800 shadow-md p-3 rounded-lg transition-all hover:cursor-pointer"
               title="Toggle theme"
             >
-              {theme.theme === THEME.LIGHT ? "🌙" : "☀️"}
+              {isDark ? "☀️" : "🌙"}
             </button>
           </div>
         </div>

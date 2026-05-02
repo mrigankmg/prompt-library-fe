@@ -1,5 +1,3 @@
-import { useTheme } from "../context/ThemeContext";
-
 export default function NoteCard({
   note,
   promptOwnerId,
@@ -7,7 +5,6 @@ export default function NoteCard({
   onVoteNote,
   formatDate,
 }) {
-  const theme = useTheme();
   const authorId = note.userId ?? promptOwnerId;
   const isOwnNote = authorId === currentUserId;
 
@@ -15,12 +12,12 @@ export default function NoteCard({
   const hasDownvoted = note.userVote === "downvote";
 
   return (
-    <div className={`${theme.card} p-4 rounded-lg border-2 ${theme.border}`}>
-      <p className={`text-xs ${theme.textMuted} mb-1`}>
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-300 dark:border-gray-700">
+      <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">
         {isOwnNote ? "You" : "Another user"}
       </p>
-      <p className={`${theme.text} whitespace-pre-wrap mb-2`}>{note.content}</p>
-      <p className={`text-xs ${theme.textSecondary} mb-2`}>
+      <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap mb-2">{note.content}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
         {formatDate(note.updatedAt || note.createdAt)}
       </p>
       {onVoteNote ? (
@@ -32,12 +29,12 @@ export default function NoteCard({
               onClick={() => onVoteNote("upvote")}
               className={`flex items-center gap-0.5 rounded-md px-2 py-1 text-sm transition hover:cursor-pointer ${
                 hasUpvoted
-                  ? `${theme.accentBg2} ${theme.accentText} ring-2 ring-orange-400/60`
-                  : `${theme.textSecondary} hover:${theme.accentBg}`
+                  ? "bg-orange-100 dark:bg-orange-700/30 text-orange-600 dark:text-orange-400 ring-2 ring-orange-400/60"
+                  : "text-gray-500 dark:text-gray-400 hover:bg-orange-50 dark:hover:bg-orange-900/30"
               }`}
             >
               <span aria-hidden="true">👍</span>
-              <span className={`tabular-nums ${theme.textMuted}`}>
+              <span className="tabular-nums text-gray-600 dark:text-gray-300">
                 {note.upvoteCount ?? 0}
               </span>
             </button>
@@ -47,12 +44,12 @@ export default function NoteCard({
               onClick={() => onVoteNote("downvote")}
               className={`flex items-center gap-0.5 rounded-md px-2 py-1 text-sm transition hover:cursor-pointer ${
                 hasDownvoted
-                  ? `${theme.accentBg2} ${theme.accentText} ring-2 ring-orange-400/60`
-                  : `${theme.textSecondary} hover:${theme.accentBg}`
+                  ? "bg-orange-100 dark:bg-orange-700/30 text-orange-600 dark:text-orange-400 ring-2 ring-orange-400/60"
+                  : "text-gray-500 dark:text-gray-400 hover:bg-orange-50 dark:hover:bg-orange-900/30"
               }`}
             >
               <span aria-hidden="true">👎</span>
-              <span className={`tabular-nums ${theme.textMuted}`}>
+              <span className="tabular-nums text-gray-600 dark:text-gray-300">
                 {note.downvoteCount ?? 0}
               </span>
             </button>

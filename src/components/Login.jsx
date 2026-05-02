@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 
-export default function Login({ onLogin }) {
-  const theme = useTheme();
+export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -15,12 +13,9 @@ export default function Login({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Reset errors
     setEmailError("");
     setPasswordError("");
 
-    // Validation
     let hasError = false;
     if (!email.trim()) {
       setEmailError("Please enter your email");
@@ -51,17 +46,14 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div
-        className={`${theme.card} ${theme.shadow} rounded-lg p-8 w-full max-w-md`}
-      >
-        <h2 className={`text-3xl font-bold ${theme.text} mb-6 text-center`}>
+      <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-8 w-full max-w-md">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
           Login
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
           <div>
-            <label className={`block text-sm font-medium ${theme.text} mb-2`}>
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
               Email
             </label>
             <input
@@ -73,8 +65,10 @@ export default function Login({ onLogin }) {
               }}
               placeholder="Enter your email"
               className={`w-full px-4 py-2 border ${
-                emailError ? "border-red-500" : theme.border
-              } ${theme.card} ${theme.text} rounded-lg focus:ring-2 ${
+                emailError
+                  ? "border-red-500"
+                  : "border-gray-300 dark:border-gray-700"
+              } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 ${
                 emailError ? "focus:ring-red-500" : "focus:ring-orange-500"
               } focus:border-transparent outline-none transition`}
             />
@@ -85,9 +79,8 @@ export default function Login({ onLogin }) {
             )}
           </div>
 
-          {/* Password */}
           <div>
-            <label className={`block text-sm font-medium ${theme.text} mb-2`}>
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
               Password
             </label>
             <input
@@ -99,8 +92,10 @@ export default function Login({ onLogin }) {
               }}
               placeholder="Enter your password"
               className={`w-full px-4 py-2 border ${
-                passwordError ? "border-red-500" : theme.border
-              } ${theme.card} ${theme.text} rounded-lg focus:ring-2 ${
+                passwordError
+                  ? "border-red-500"
+                  : "border-gray-300 dark:border-gray-700"
+              } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 ${
                 passwordError ? "focus:ring-red-500" : "focus:ring-orange-500"
               } focus:border-transparent outline-none transition`}
             />
@@ -111,21 +106,20 @@ export default function Login({ onLogin }) {
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className={`w-full ${theme.buttonPrimary} text-white font-medium py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105 hover:cursor-pointer active:scale-95 mt-6`}
+            disabled={isInFlight}
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105 hover:cursor-pointer active:scale-95 mt-6 disabled:opacity-50"
           >
             Login
           </button>
         </form>
 
-        {/* Register Link */}
-        <p className={`text-center mt-6 ${theme.textSecondary}`}>
+        <p className="text-center mt-6 text-gray-500 dark:text-gray-400">
           Don't have an account?{" "}
           <button
             onClick={() => navigate("/register")}
-            className={`${theme.accentText} hover:underline hover:cursor-pointer font-medium`}
+            className="text-orange-600 dark:text-orange-400 hover:underline hover:cursor-pointer font-medium"
           >
             Register
           </button>

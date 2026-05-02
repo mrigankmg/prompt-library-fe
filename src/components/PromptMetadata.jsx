@@ -1,40 +1,24 @@
-import { useTheme } from "../context/ThemeContext";
 import { getConfidenceColor, formatDate } from "../utils/metadata";
 
-/**
- * PromptMetadata Component
- * Displays metadata information for prompts including model name,
- * timestamps, and token estimates with color-coded confidence levels
- */
 export default function PromptMetadata({ metadata }) {
-  const theme = useTheme();
-
-  // Handle missing metadata
-  if (!metadata) {
-    return null;
-  }
+  if (!metadata) return null;
 
   const { model, createdAt, updatedAt, tokenEstimate } = metadata;
-
   const hasBeenUpdated = createdAt !== updatedAt;
   const hasTokenEstimate = Boolean(tokenEstimate);
 
-  if (!model && !createdAt && !hasTokenEstimate) {
-    return null;
-  }
+  if (!model && !createdAt && !hasTokenEstimate) return null;
 
   const confidenceColorClass = hasTokenEstimate
     ? getConfidenceColor(tokenEstimate.confidence)
     : "";
 
   return (
-    <div
-      className={`mt-4 pt-4 border-t ${theme.border} text-xs ${theme.textSecondary}`}
-    >
+    <div className="mt-4 pt-4 border-t border-gray-300 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
       {model && (
         <div className="mb-3">
           <span className="font-semibold">Model:</span>
-          <span className={`ml-2 inline-block ${theme.text}`}>{model}</span>
+          <span className="ml-2 inline-block text-gray-900 dark:text-gray-100">{model}</span>
         </div>
       )}
 

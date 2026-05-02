@@ -4,7 +4,6 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { LIST_PAGE_SIZE } from "../constants/constants";
 import { queryKeys } from "../query/keys";
@@ -27,7 +26,6 @@ function nextRatingState(prompt, rating) {
 }
 
 export default function PromptLibrary() {
-  const theme = useTheme();
   const queryClient = useQueryClient();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -219,16 +217,14 @@ export default function PromptLibrary() {
     (canGoPrev || canGoNext || pages.length > 1);
 
   return (
-    <div
-      className={`min-h-screen ${theme.bgGradient} px-4 transition-colors duration-200`}
-    >
+    <div className="min-h-screen px-4 transition-colors duration-200">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div className="text-center flex-1">
-            <h1 className={`text-4xl font-bold ${theme.text} mb-2`}>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Prompt Library
             </h1>
-            <p className={theme.textMuted}>
+            <p className="text-gray-600 dark:text-gray-300">
               Save your prompts and browse public prompts from others
             </p>
           </div>
@@ -239,10 +235,8 @@ export default function PromptLibrary() {
             {isAuthenticated ? (
               <PromptForm onSave={handleSavePrompt} />
             ) : (
-              <div
-                className={`${theme.card} ${theme.shadow} p-6 rounded-lg ${theme.textSecondary} text-sm`}
-              >
-                <p className={`${theme.text} font-medium mb-2`}>
+              <div className="bg-white dark:bg-gray-800 shadow-md p-6 rounded-lg text-gray-500 dark:text-gray-400 text-sm">
+                <p className="text-gray-900 dark:text-gray-100 font-medium mb-2">
                   Create prompts
                 </p>
                 <p>
