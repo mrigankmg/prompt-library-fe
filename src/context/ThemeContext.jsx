@@ -1,7 +1,7 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { THEME, STORAGE_KEYS } from "../constants/constants";
 
-export const ThemeContext = createContext();
+const ThemeContext = createContext();
 
 export default function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
@@ -64,4 +64,14 @@ export default function ThemeProvider({ children }) {
       {children}
     </ThemeContext.Provider>
   );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+
+  if (!context) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+
+  return context;
 }

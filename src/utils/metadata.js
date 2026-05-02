@@ -72,9 +72,6 @@ export function getConfidenceColor(confidence) {
  */
 export function formatDate(isoDate) {
   try {
-    if (!isValidISO8601(isoDate)) {
-      throw new Error("Invalid ISO 8601 date format");
-    }
     const date = new Date(isoDate);
     return new Intl.DateTimeFormat("en-US", {
       year: "numeric",
@@ -87,17 +84,4 @@ export function formatDate(isoDate) {
   } catch (error) {
     return "Invalid date";
   }
-}
-
-/**
- * Validate ISO 8601 date string
- * @param {string} dateString - The date string to validate
- * @returns {boolean} True if valid ISO 8601 date
- */
-function isValidISO8601(dateString) {
-  if (typeof dateString !== "string") return false;
-  const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-  if (!iso8601Regex.test(dateString)) return false;
-  const date = new Date(dateString);
-  return date instanceof Date && !isNaN(date);
 }

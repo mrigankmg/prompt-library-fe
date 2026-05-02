@@ -1,5 +1,5 @@
-import { useState, useContext } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 import { estimateTokens } from "../utils/metadata";
 
 const MODEL_OPTIONS = [
@@ -12,7 +12,7 @@ const MODEL_OPTIONS = [
 ];
 
 export default function PromptForm({ onSave }) {
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedModel, setSelectedModel] = useState("Claude-3");

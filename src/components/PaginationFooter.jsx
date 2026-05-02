@@ -1,5 +1,4 @@
-import { useContext } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import { useTheme } from "../context/ThemeContext";
 
 const VARIANT = {
   default: {
@@ -21,13 +20,15 @@ export default function PaginationFooter({
   totalPages,
   onPrev,
   onNext,
+  disablePrev,
+  disableNext,
   variant = "default",
   prevAriaLabel = "Previous page",
   nextAriaLabel = "Next page",
   leading = null,
   className = "",
 }) {
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
   const v = VARIANT[variant] ?? VARIANT.default;
   const hasLeading = leading != null && leading !== false;
   const rowLayout = hasLeading
@@ -41,7 +42,7 @@ export default function PaginationFooter({
         <button
           type="button"
           onClick={onPrev}
-          disabled={page <= 1}
+          disabled={disablePrev !== undefined ? disablePrev : page <= 1}
           aria-label={prevAriaLabel}
           title={prevAriaLabel}
           className={`inline-flex items-center justify-center transition hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${v.button} ${theme.border} ${theme.card} ${theme.text}`}
@@ -64,12 +65,18 @@ export default function PaginationFooter({
         <span
           className={`min-w-[7rem] text-center text-sm ${theme.textSecondary}`}
         >
-          Page {page} of {totalPages}
+          {totalPages != null && totalPages > 0
+            ? `Page ${page} of ${totalPages}`
+            : `Page ${page}`}
         </span>
         <button
           type="button"
           onClick={onNext}
-          disabled={page >= totalPages}
+          disabled={
+            disableNext !== undefined
+              ? disableNext
+              : totalPages != null && page >= totalPages
+          }
           aria-label={nextAriaLabel}
           title={nextAriaLabel}
           className={`inline-flex items-center justify-center transition hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${v.button} ${theme.border} ${theme.card} ${theme.text}`}

@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 import PromptMetadata from "./PromptMetadata";
 import StarRating from "./StarRating";
 import NotesList from "./NotesList";
@@ -10,13 +10,9 @@ export default function PromptCard({
   onRatingSubmit,
   userRating,
   userId,
-  onAddNote,
-  onUpdateNote,
-  onDeleteNote,
-  onVoteNote,
   onTogglePrivacy,
 }) {
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPrivate = true } = prompt;
 
@@ -31,7 +27,7 @@ export default function PromptCard({
       confirm("Are you sure you want to make this prompt public?")
     ) {
       onTogglePrivacy(prompt.id, true);
-    } else {
+    } else if (!isPrivate) {
       onTogglePrivacy(prompt.id, false);
     }
   };
@@ -43,15 +39,18 @@ export default function PromptCard({
     }
   };
 
+  const showNotes = !isPrivate;
+  const showRating = !isPrivate && onRatingSubmit;
+
   return (
     <div
       className={`${theme.card} rounded-lg ${theme.shadow} p-6 hover:shadow-lg transition`}
     >
       <div className="flex justify-between items-start mb-3">
         <div>
-          {userId !== prompt.userId && (
+          {userId && userId !== prompt.userId && (
             <p className={`text-xs ${theme.textMuted} mb-1`}>
-              Shared by user {prompt.userId}
+              Shared by another user
             </p>
           )}
           <div className="flex items-center gap-2 mb-1">
@@ -105,25 +104,20 @@ export default function PromptCard({
         📋 Copy to Clipboard
       </button>
       {prompt.metadata && <PromptMetadata metadata={prompt.metadata} />}
-      {onRatingSubmit && (
+      {showRating ? (
         <StarRating
           prompt={prompt}
           userRating={userRating}
           onRatingSubmit={onRatingSubmit}
         />
-      )}
-      {userId && (
+      ) : null}
+      {showNotes && userId ? (
         <NotesList
           promptId={prompt.id}
           promptOwnerId={prompt.userId}
           currentUserId={userId}
-          notes={prompt.notes || []}
-          onAddNote={onAddNote}
-          onUpdateNote={onUpdateNote}
-          onDeleteNote={onDeleteNote}
-          onVoteNote={onVoteNote}
         />
-      )}
+      ) : null}
     </div>
   );
 }

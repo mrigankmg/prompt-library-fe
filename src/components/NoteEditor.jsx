@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function NoteEditor({
   noteId,
@@ -8,7 +8,7 @@ export default function NoteEditor({
   onSave,
   onCancel,
 }) {
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
   const [text, setText] = useState(content);
   const MAX_CHARS = 500;
 

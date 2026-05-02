@@ -1,11 +1,11 @@
-import { useState, useContext } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 import Star from "./Star";
 
 const stars = Array.from({ length: 5 }, (_, i) => i + 1);
 
 export default function StarRating({ prompt, userRating, onRatingSubmit }) {
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
   const [hoverRating, setHoverRating] = useState(0);
 
   const handleStarClick = (score) => {
@@ -14,11 +14,7 @@ export default function StarRating({ prompt, userRating, onRatingSubmit }) {
 
   const userRatingDisplay = hoverRating || userRating || 0;
   const averageRating = prompt.averageRating || 0;
-  const ratingCount = prompt.ratingCount || 0;
-  // const displayAverage =
-  //   !prompt.isPrivate ||
-  //   (ratingCount === 1 && userRating === 0) ||
-  //   ratingCount > 1;
+  const ratingCount = prompt.ratingCount;
 
   const getAverageStarFillPercentage = (star) => {
     if (star <= Math.floor(averageRating)) {
@@ -48,9 +44,11 @@ export default function StarRating({ prompt, userRating, onRatingSubmit }) {
           <span className={`text-sm font-medium ${theme.text}`}>
             {averageRating > 0 ? averageRating.toFixed(1) : "—"}
           </span>
-          <span className={`text-xs ${theme.textSecondary}`}>
-            ({ratingCount})
-          </span>
+          {ratingCount != null && ratingCount > 0 ? (
+            <span className={`text-xs ${theme.textSecondary}`}>
+              ({ratingCount})
+            </span>
+          ) : null}
         </div>
 
         {/* User Rating Input */}

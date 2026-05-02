@@ -1,70 +1,178 @@
-import { useContext, useState, useMemo, useEffect } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useTheme } from "../context/ThemeContext";
 import { LIST_PAGE_SIZE } from "../constants/constants";
+import { queryKeys } from "../query/keys";
+import * as promptsApi from "../api/promptsApi";
 import NoteEditor from "./NoteEditor";
 import NoteCard from "./NoteCard";
 import PaginationFooter from "./PaginationFooter";
+
+const NOTES_SORT = "newest";
+
+function nextVoteState(note, voteType) {
+  const prev = note.userVote;
+  let up = note.upvoteCount ?? 0;
+  let down = note.downvoteCount ?? 0;
+  let userVote = voteType;
+
+  if (prev === voteType) {
+    userVote = null;
+    if (voteType === "upvote") up = Math.max(0, up - 1);
+    else down = Math.max(0, down - 1);
+  } else if (prev === "upvote") {
+    up = Math.max(0, up - 1);
+    if (voteType === "downvote") down += 1;
+  } else if (prev === "downvote") {
+    down = Math.max(0, down - 1);
+    if (voteType === "upvote") up += 1;
+  } else {
+    if (voteType === "upvote") up += 1;
+    else down += 1;
+  }
+
+  return { ...note, userVote, upvoteCount: up, downvoteCount: down };
+}
 
 export default function NotesList({
   promptId,
   promptOwnerId,
   currentUserId,
-  notes = [],
-  onAddNote,
-  onUpdateNote,
-  onDeleteNote,
-  onVoteNote,
 }) {
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
+  const queryClient = useQueryClient();
   const [isAddingNote, setIsAddingNote] = useState(false);
-  const [editingNoteId, setEditingNoteId] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [notesPage, setNotesPage] = useState(1);
+  const [pageIndex, setPageIndex] = useState(0);
 
-  const sortedNotes = useMemo(() => {
-    return [...notes].sort((a, b) => {
-      const aTime = new Date(a.createdAt).getTime();
-      const bTime = new Date(b.createdAt).getTime();
-      return bTime - aTime;
-    });
-  }, [notes]);
-
-  const noteTotalPages = Math.max(
-    1,
-    Math.ceil(sortedNotes.length / LIST_PAGE_SIZE),
+  const listParams = useMemo(
+    () => ({ sortBy: NOTES_SORT, limit: LIST_PAGE_SIZE }),
+    [],
   );
 
-  useEffect(() => {
-    setNotesPage((p) => Math.min(Math.max(1, p), noteTotalPages));
-  }, [noteTotalPages, notes.length]);
+  const notesQueryKey = queryKeys.notes.list(promptId, listParams);
+
+  const notesQuery = useInfiniteQuery({
+    queryKey: notesQueryKey,
+    queryFn: ({ pageParam }) =>
+      promptsApi.fetchNotesPage({
+        promptId,
+        sortBy: NOTES_SORT,
+        cursor: pageParam,
+        limit: LIST_PAGE_SIZE,
+      }),
+    initialPageParam: undefined,
+    getNextPageParam: (last) =>
+      last.has_more && last.next_cursor ? last.next_cursor : undefined,
+    enabled: isExpanded && Boolean(promptId),
+  });
 
   useEffect(() => {
-    setEditingNoteId(null);
-  }, [notesPage]);
+    setPageIndex(0);
+  }, [promptId]);
 
-  const paginatedNotes = useMemo(() => {
-    const start = (notesPage - 1) * LIST_PAGE_SIZE;
-    return sortedNotes.slice(start, start + LIST_PAGE_SIZE);
-  }, [sortedNotes, notesPage]);
+  const pages = notesQuery.data?.pages ?? [];
+  const lastIndex = Math.max(0, pages.length - 1);
+  const safeIndex = Math.min(pageIndex, lastIndex);
+  const paginatedNotes = pages[safeIndex]?.items ?? [];
+
+  useEffect(() => {
+    if (pageIndex > lastIndex && lastIndex >= 0) {
+      setPageIndex(lastIndex);
+    }
+  }, [pageIndex, lastIndex]);
+
+  const canGoPrev = safeIndex > 0;
+  const canGoNext =
+    safeIndex < lastIndex ||
+    (safeIndex === lastIndex && Boolean(notesQuery.hasNextPage));
+
+  const loadedCount = useMemo(
+    () => pages.reduce((sum, p) => sum + (p.items?.length ?? 0), 0),
+    [pages],
+  );
+
+  const addMutation = useMutation({
+    mutationFn: (content) => promptsApi.createNote(promptId, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["prompts", promptId, "notes"],
+      });
+      setIsAddingNote(false);
+      setPageIndex(0);
+    },
+  });
+
+  const voteMutation = useMutation({
+    mutationFn: ({ noteId, voteType }) =>
+      promptsApi.voteOnNote(promptId, noteId, voteType),
+    onMutate: async ({ noteId, voteType }) => {
+      await queryClient.cancelQueries({
+        queryKey: ["prompts", promptId, "notes"],
+      });
+      const previous = queryClient.getQueryData(notesQueryKey);
+      queryClient.setQueryData(notesQueryKey, (old) => {
+        if (!old?.pages) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: (page.items ?? []).map((n) =>
+              n.id === noteId ? nextVoteState(n, voteType) : n,
+            ),
+          })),
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(notesQueryKey, context.previous);
+      }
+    },
+    onSuccess: (updatedNote, { noteId }) => {
+      queryClient.setQueryData(notesQueryKey, (old) => {
+        if (!old?.pages || !updatedNote) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: (page.items ?? []).map((n) =>
+              n.id === noteId ? updatedNote : n,
+            ),
+          })),
+        };
+      });
+    },
+  });
+
+  const handleNextPage = useCallback(async () => {
+    if (safeIndex < lastIndex) {
+      setPageIndex((i) => i + 1);
+      return;
+    }
+    if (notesQuery.hasNextPage) {
+      await notesQuery.fetchNextPage();
+      setPageIndex((i) => i + 1);
+    }
+  }, [safeIndex, lastIndex, notesQuery]);
+
+  const handlePrevPage = useCallback(() => {
+    setPageIndex((i) => Math.max(0, i - 1));
+  }, []);
 
   const handleSaveNote = (pId, nId, content) => {
-    if (nId) {
-      onUpdateNote(pId, nId, content);
-      setEditingNoteId(null);
-    } else {
-      onAddNote(pId, content);
-      setIsAddingNote(false);
-      setNotesPage(1);
+    if (!nId) {
+      addMutation.mutate(content);
     }
-  };
-
-  const handleDeleteNote = (pId, nId) => {
-    onDeleteNote(pId, nId);
   };
 
   const handleCancel = () => {
     setIsAddingNote(false);
-    setEditingNoteId(null);
   };
 
   const formatDate = (timestamp) => {
@@ -82,54 +190,59 @@ export default function NotesList({
     return date.toLocaleDateString();
   };
 
+  const noteLabel =
+    isExpanded && notesQuery.data
+      ? `${loadedCount} note${loadedCount !== 1 ? "s" : ""} loaded`
+      : "Notes";
+
   return (
     <div className="mt-4 pt-4 border-t-2 border-gray-300 dark:border-gray-700">
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className={`${theme.accentText} ${theme.accentTextHover} font-medium text-sm transition flex items-center gap-1 mb-3`}
       >
-        📝 {notes.length} note{notes.length !== 1 ? "s" : ""}
+        📝 {noteLabel}
         <span className="text-xs">{isExpanded ? "▼" : "▶"}</span>
       </button>
 
       {isExpanded && (
         <div className="space-y-3">
-          {paginatedNotes.map((note) => (
-            <div key={note.id}>
-              {editingNoteId === note.id ? (
-                <NoteEditor
-                  noteId={note.id}
-                  promptId={promptId}
-                  content={note.content}
-                  onSave={handleSaveNote}
-                  onCancel={handleCancel}
-                />
-              ) : (
+          {notesQuery.isPending ? (
+            <p className={`text-sm ${theme.textMuted}`}>Loading notes…</p>
+          ) : notesQuery.isError ? (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              Could not load notes.
+            </p>
+          ) : (
+            <>
+              {paginatedNotes.map((note) => (
                 <NoteCard
+                  key={note.id}
                   note={note}
                   promptOwnerId={promptOwnerId}
                   currentUserId={currentUserId}
-                  onEdit={() => setEditingNoteId(note.id)}
-                  onDelete={() => handleDeleteNote(promptId, note.id)}
-                  onVoteNote={(kind) => onVoteNote(promptId, note.id, kind)}
+                  onVoteNote={(voteType) =>
+                    voteMutation.mutate({ noteId: note.id, voteType })
+                  }
                   formatDate={formatDate}
                 />
-              )}
-            </div>
-          ))}
+              ))}
 
-          {sortedNotes.length > LIST_PAGE_SIZE && (
-            <PaginationFooter
-              variant="compact"
-              page={notesPage}
-              totalPages={noteTotalPages}
-              onPrev={() => setNotesPage((p) => Math.max(1, p - 1))}
-              onNext={() =>
-                setNotesPage((p) => Math.min(noteTotalPages, p + 1))
-              }
-              prevAriaLabel="Previous notes page"
-              nextAriaLabel="Next notes page"
-            />
+              {(canGoPrev || canGoNext || pages.length > 1) && (
+                <PaginationFooter
+                  variant="compact"
+                  page={safeIndex + 1}
+                  totalPages={null}
+                  onPrev={handlePrevPage}
+                  onNext={handleNextPage}
+                  disablePrev={!canGoPrev}
+                  disableNext={!canGoNext}
+                  prevAriaLabel="Previous notes page"
+                  nextAriaLabel="Next notes page"
+                />
+              )}
+            </>
           )}
 
           {isAddingNote ? (
@@ -142,8 +255,10 @@ export default function NotesList({
             />
           ) : (
             <button
+              type="button"
               onClick={() => setIsAddingNote(true)}
-              className={`w-full ${theme.accentBg} ${theme.accentHover} ${theme.accentText} py-2 rounded-lg text-sm font-medium transition hover:cursor-pointer`}
+              disabled={addMutation.isPending}
+              className={`w-full ${theme.accentBg} ${theme.accentHover} ${theme.accentText} py-2 rounded-lg text-sm font-medium transition hover:cursor-pointer disabled:opacity-50`}
             >
               + Add Note
             </button>
