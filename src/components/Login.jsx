@@ -3,13 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
 import { loginSchema } from "../validation/schemas";
-
-const inputClass = (fieldError) =>
-  `w-full px-4 py-2 border ${
-    fieldError ? "border-red-500" : "border-gray-300 dark:border-gray-700"
-  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 ${
-    fieldError ? "focus:ring-red-500" : "focus:ring-orange-500"
-  } focus:border-transparent outline-none transition`;
+import { inputClass } from "../utils/styles";
 
 export default function Login() {
   const { login } = useAuth();

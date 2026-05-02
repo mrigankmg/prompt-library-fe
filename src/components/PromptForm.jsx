@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { estimateTokens } from "../utils/metadata";
 import { promptFormSchema } from "../validation/schemas";
+import { inputClass } from "../utils/styles";
 
 const MODEL_OPTIONS = [
   { value: "GPT-4", text: "GPT-4" },
@@ -11,13 +12,6 @@ const MODEL_OPTIONS = [
   { value: "Gemini", text: "Gemini" },
   { value: "Custom Model", text: "Custom Model" },
 ];
-
-const inputClass = (fieldError) =>
-  `w-full px-4 py-2 border ${
-    fieldError ? "border-red-500" : "border-gray-300 dark:border-gray-700"
-  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 ${
-    fieldError ? "focus:ring-red-500" : "focus:ring-orange-500"
-  } focus:border-transparent outline-none transition`;
 
 export default function PromptForm({ onSave }) {
   const {
