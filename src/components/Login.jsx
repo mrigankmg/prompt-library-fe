@@ -28,14 +28,10 @@ export default function Login() {
 
     if (hasError) return;
 
-    const data = new URLSearchParams();
-    data.append("username", email);
-    data.append("password", password);
-
     setIsInFlight(true);
 
     try {
-      await login(data);
+      await login(email, password);
       navigate("/", { replace: true });
     } catch (error) {
       console.log(error instanceof Error ? error.message : "Login failed.");

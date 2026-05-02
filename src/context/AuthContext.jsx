@@ -5,11 +5,7 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, registerAuthFailureHandler, ApiError } from "../utils/api";
 import { queryKeys } from "../query/keys";
 
@@ -55,8 +51,12 @@ export default function AuthProvider({ children }) {
   });
 
   const loginMutation = useMutation({
-    mutationFn: async (formData) => {
-      await apiClient.post("/api/v1/auth/login", formData, {
+    mutationFn: async ({ email, password }) => {
+      const data = new URLSearchParams();
+      data.append("username", email);
+      data.append("password", password);
+
+      await apiClient.post("/api/v1/auth/login", data, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
     },
@@ -83,7 +83,7 @@ export default function AuthProvider({ children }) {
   );
 
   const login = useCallback(
-    (formData) => loginMutation.mutateAsync(formData),
+    (email, password) => loginMutation.mutateAsync({ email, password }),
     [loginMutation],
   );
 
