@@ -1,4 +1,5 @@
 import { usePromptLibrary } from "../hooks/usePromptLibrary";
+import { PromptActionsProvider } from "../context/PromptActionsContext";
 import PromptForm from "./PromptForm";
 import PromptList from "./PromptList";
 import "../App.css";
@@ -27,6 +28,13 @@ export default function PromptLibrary() {
     handleSubmitRating,
     authGateMessage,
   } = usePromptLibrary();
+
+  const promptActions = {
+    userId,
+    onDelete: handleDeletePrompt,
+    onTogglePrivacy: handleTogglePrivacy,
+    onRatingSubmit: handleSubmitRating,
+  };
 
   return (
     <div className="min-h-screen px-4 transition-colors duration-200">
@@ -60,27 +68,25 @@ export default function PromptLibrary() {
           </div>
 
           <div className="md:col-span-2">
-            <PromptList
-              scope={scope}
-              onScopeChange={setScope}
-              sortOrder={sortOrder}
-              onSortChange={setSortOrder}
-              prompts={authGateMessage ? [] : currentItems}
-              userId={userId}
-              isInitialLoading={authGateMessage ? false : isInitialLoading}
-              isFetching={isFetching}
-              listError={listError}
-              pageIndex={pageIndex}
-              onPrevPage={handlePrevPage}
-              onNextPage={handleNextPage}
-              canGoPrev={canGoPrev}
-              canGoNext={canGoNext}
-              showPagination={showPagination}
-              onDelete={handleDeletePrompt}
-              onTogglePrivacy={handleTogglePrivacy}
-              onRatingSubmit={handleSubmitRating}
-              authGateMessage={authGateMessage}
-            />
+            <PromptActionsProvider {...promptActions}>
+              <PromptList
+                scope={scope}
+                onScopeChange={setScope}
+                sortOrder={sortOrder}
+                onSortChange={setSortOrder}
+                prompts={authGateMessage ? [] : currentItems}
+                isInitialLoading={authGateMessage ? false : isInitialLoading}
+                isFetching={isFetching}
+                listError={listError}
+                pageIndex={pageIndex}
+                onPrevPage={handlePrevPage}
+                onNextPage={handleNextPage}
+                canGoPrev={canGoPrev}
+                canGoNext={canGoNext}
+                showPagination={showPagination}
+                authGateMessage={authGateMessage}
+              />
+            </PromptActionsProvider>
           </div>
         </div>
       </div>

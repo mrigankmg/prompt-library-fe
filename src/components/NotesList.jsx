@@ -7,6 +7,7 @@ import {
 import { LIST_PAGE_SIZE } from "../constants/constants";
 import { queryKeys } from "../query/keys";
 import * as promptsApi from "../api/promptsApi";
+import { usePromptActions } from "../context/PromptActionsContext";
 import NoteEditor from "./NoteEditor";
 import NoteCard from "./NoteCard";
 import PaginationFooter from "./PaginationFooter";
@@ -37,7 +38,8 @@ function nextVoteState(note, voteType) {
   return { ...note, userVote, upvoteCount: up, downvoteCount: down };
 }
 
-export default function NotesList({ promptId, promptOwnerId, currentUserId }) {
+export default function NotesList({ promptId, promptOwnerId }) {
+  const { userId: currentUserId } = usePromptActions();
   const queryClient = useQueryClient();
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);

@@ -17,7 +17,6 @@ export default function PromptList({
   sortOrder,
   onSortChange,
   prompts,
-  userId,
   isInitialLoading,
   isFetching,
   listError,
@@ -27,9 +26,6 @@ export default function PromptList({
   canGoPrev,
   canGoNext,
   showPagination,
-  onDelete,
-  onTogglePrivacy,
-  onRatingSubmit,
   authGateMessage,
 }) {
   if (authGateMessage) {
@@ -139,15 +135,7 @@ export default function PromptList({
       ) : null}
 
       {prompts.map((prompt) => (
-        <PromptCard
-          key={prompt.id}
-          prompt={prompt}
-          onDelete={onDelete}
-          onRatingSubmit={onRatingSubmit}
-          userRating={prompt.userRating ?? 0}
-          userId={userId}
-          onTogglePrivacy={onTogglePrivacy}
-        />
+        <PromptCard key={prompt.id} prompt={prompt} />
       ))}
 
       {showPagination ? (

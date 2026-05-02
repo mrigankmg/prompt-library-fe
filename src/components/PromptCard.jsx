@@ -1,16 +1,12 @@
 import { useState } from "react";
+import { usePromptActions } from "../context/PromptActionsContext";
 import PromptMetadata from "./PromptMetadata";
 import StarRating from "./StarRating";
 import NotesList from "./NotesList";
 
-export default function PromptCard({
-  prompt,
-  onDelete,
-  onRatingSubmit,
-  userRating,
-  userId,
-  onTogglePrivacy,
-}) {
+export default function PromptCard({ prompt }) {
+  const { userId, onDelete, onTogglePrivacy, onRatingSubmit } =
+    usePromptActions();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isPrivate = true } = prompt;
 
@@ -102,7 +98,7 @@ export default function PromptCard({
       {showRating ? (
         <StarRating
           prompt={prompt}
-          userRating={userRating}
+          userRating={prompt.userRating ?? 0}
           onRatingSubmit={onRatingSubmit}
         />
       ) : null}
