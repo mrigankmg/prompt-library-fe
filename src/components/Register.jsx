@@ -1,64 +1,36 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
+import { registerSchema } from "../validation/schemas";
+
+const inputClass = (fieldError) =>
+  `w-full px-4 py-2 border ${
+    fieldError ? "border-red-500" : "border-gray-300 dark:border-gray-700"
+  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 ${
+    fieldError ? "focus:ring-red-500" : "focus:ring-orange-500"
+  } focus:border-transparent outline-none transition`;
 
 export default function Register() {
-  const { register } = useAuth();
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [errors, setErrors] = useState({});
-  const [isInFlight, setIsInFlight] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({ resolver: zodResolver(registerSchema) });
 
-    const newErrors = {};
-    if (!firstName.trim()) newErrors.firstName = "Please enter your first name";
-    if (!lastName.trim()) newErrors.lastName = "Please enter your last name";
-    if (!email.trim()) newErrors.email = "Please enter your email";
-    if (!password.trim()) newErrors.password = "Please enter a password";
-    if (!passwordConfirm.trim())
-      newErrors.passwordConfirm = "Please confirm your password";
-    if (password.trim() && passwordConfirm.trim() && password !== passwordConfirm)
-      newErrors.passwordConfirm = "Passwords do not match";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setIsInFlight(true);
-
+  const onSubmit = async ({ firstName, lastName, email, password }) => {
     try {
-      await register(firstName, lastName, email, password);
+      await registerUser(firstName, lastName, email, password);
       navigate("/", { replace: true });
     } catch (error) {
-      console.log(error instanceof Error ? error.message : "Registration failed.");
-    } finally {
-      setIsInFlight(false);
+      console.log(
+        error instanceof Error ? error.message : "Registration failed.",
+      );
     }
   };
-
-  const clearError = (field) => {
-    setErrors((prev) => {
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  };
-
-  const inputClass = (field) =>
-    `w-full px-4 py-2 border ${
-      errors[field]
-        ? "border-red-500"
-        : "border-gray-300 dark:border-gray-700"
-    } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 ${
-      errors[field] ? "focus:ring-red-500" : "focus:ring-orange-500"
-    } focus:border-transparent outline-none transition`;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -67,20 +39,21 @@ export default function Register() {
           Register
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
               First Name
             </label>
             <input
               type="text"
-              value={firstName}
-              onChange={(e) => { setFirstName(e.target.value); clearError("firstName"); }}
+              {...register("firstName")}
               placeholder="Enter your first name"
-              className={inputClass("firstName")}
+              className={inputClass(errors.firstName)}
             />
             {errors.firstName && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">{errors.firstName}</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.firstName.message}
+              </p>
             )}
           </div>
 
@@ -90,13 +63,14 @@ export default function Register() {
             </label>
             <input
               type="text"
-              value={lastName}
-              onChange={(e) => { setLastName(e.target.value); clearError("lastName"); }}
+              {...register("lastName")}
               placeholder="Enter your last name"
-              className={inputClass("lastName")}
+              className={inputClass(errors.lastName)}
             />
             {errors.lastName && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">{errors.lastName}</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.lastName.message}
+              </p>
             )}
           </div>
 
@@ -106,13 +80,14 @@ export default function Register() {
             </label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
+              {...register("email")}
               placeholder="Enter your email"
-              className={inputClass("email")}
+              className={inputClass(errors.email)}
             />
             {errors.email && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">{errors.email}</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -122,13 +97,14 @@ export default function Register() {
             </label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
+              {...register("password")}
               placeholder="Enter your password"
-              className={inputClass("password")}
+              className={inputClass(errors.password)}
             />
             {errors.password && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">{errors.password}</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -138,19 +114,20 @@ export default function Register() {
             </label>
             <input
               type="password"
-              value={passwordConfirm}
-              onChange={(e) => { setPasswordConfirm(e.target.value); clearError("passwordConfirm"); }}
+              {...register("passwordConfirm")}
               placeholder="Confirm your password"
-              className={inputClass("passwordConfirm")}
+              className={inputClass(errors.passwordConfirm)}
             />
             {errors.passwordConfirm && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">{errors.passwordConfirm}</p>
+              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                {errors.passwordConfirm.message}
+              </p>
             )}
           </div>
 
           <button
             type="submit"
-            disabled={isInFlight}
+            disabled={isSubmitting}
             className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105 hover:cursor-pointer active:scale-95 mt-6 disabled:opacity-50"
           >
             Register

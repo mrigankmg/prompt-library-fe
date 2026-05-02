@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import Star from "./Star";
 
 const stars = Array.from({ length: 5 }, (_, i) => i + 1);
 
 export default function StarRating({ prompt, userRating, onRatingSubmit }) {
+  const { isAuthenticated } = useAuth();
   const [hoverRating, setHoverRating] = useState(0);
 
   const handleStarClick = (score) => {
@@ -43,26 +45,30 @@ export default function StarRating({ prompt, userRating, onRatingSubmit }) {
           ) : null}
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500 dark:text-gray-400">Your rating:</span>
-          <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
-            {stars.map((star) => (
-              <Star
-                key={`user-${star}`}
-                rating={star}
-                fillPercentage={star <= userRatingDisplay ? 1 : 0}
-                interactive={true}
-                onClick={() => handleStarClick(star)}
-                onMouseEnter={() => setHoverRating(star)}
-              />
-            ))}
-          </div>
-          {userRating > 0 && (
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-              {userRating}
+        {isAuthenticated && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Your rating:
             </span>
-          )}
-        </div>
+            <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
+              {stars.map((star) => (
+                <Star
+                  key={`user-${star}`}
+                  rating={star}
+                  fillPercentage={star <= userRatingDisplay ? 1 : 0}
+                  interactive={true}
+                  onClick={() => handleStarClick(star)}
+                  onMouseEnter={() => setHoverRating(star)}
+                />
+              ))}
+            </div>
+            {userRating > 0 && (
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {userRating}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
