@@ -1,16 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { STORAGE_KEYS } from "../constants/constants";
+import { STORAGE_KEYS, THEME } from "../constants/constants";
 
 const ThemeContext = createContext();
 
 export default function ThemeProvider({ children }) {
   const [isDark, setIsDark] = useState(
-    () => localStorage.getItem(STORAGE_KEYS.THEME) === "dark"
+    () => localStorage.getItem(STORAGE_KEYS.THEME) === THEME.DARK,
   );
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem(STORAGE_KEYS.THEME, isDark ? "dark" : "light");
+    document.documentElement.classList.toggle(THEME.DARK, isDark);
+    localStorage.setItem(STORAGE_KEYS.THEME, isDark ? THEME.DARK : THEME.LIGHT);
   }, [isDark]);
 
   const toggleTheme = () => setIsDark((d) => !d);
