@@ -37,7 +37,7 @@ export default function PromptLibrary() {
   };
 
   return (
-    <div className="min-h-screen px-4 transition-colors duration-200">
+    <div className="w-full px-4 transition-colors duration-200">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div className="text-center flex-1">
