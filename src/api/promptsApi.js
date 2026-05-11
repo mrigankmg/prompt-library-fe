@@ -47,19 +47,27 @@ export async function ratePrompt(promptId, rating) {
   return data;
 }
 
-export async function fetchNotesPage({ promptId, sortBy, cursor, limit }) {
+export async function fetchNotesPage({
+  promptId,
+  sortBy,
+  cursor,
+  limit,
+  direction = "forward",
+}) {
   const { data } = await apiClient.get(`/api/v1/prompts/${promptId}/notes`, {
     params: {
       sort_by: sortBy,
-      direction: "forward",
+      direction,
       cursor: cursor || undefined,
       limit,
     },
   });
   return {
     items: (data.items || []).map(mapNoteRead),
-    next_cursor: data.next_cursor ?? null,
-    has_more: !!data.has_more,
+    next_cursor: data.page_info?.end_cursor ?? null,
+    prev_cursor: data.page_info?.start_cursor ?? null,
+    has_more: !!data.page_info?.has_next_page,
+    has_previous: !!data.page_info?.has_previous_page,
   };
 }
 

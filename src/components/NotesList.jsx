@@ -59,12 +59,19 @@ export default function NotesList({ promptId, promptOwnerId }) {
       promptsApi.fetchNotesPage({
         promptId,
         sortBy: NOTES_SORT,
-        cursor: pageParam,
+        cursor: pageParam?.cursor,
+        direction: pageParam?.direction,
         limit: LIST_PAGE_SIZE,
       }),
     initialPageParam: undefined,
     getNextPageParam: (last) =>
-      last.has_more && last.next_cursor ? last.next_cursor : undefined,
+      last.has_more && last.next_cursor
+        ? { cursor: last.next_cursor, direction: "forward" }
+        : undefined,
+    getPreviousPageParam: (first) =>
+      first.has_previous && first.prev_cursor
+        ? { cursor: first.prev_cursor, direction: "backward" }
+        : undefined,
     enabled: isExpanded && Boolean(promptId),
   });
 
@@ -83,7 +90,7 @@ export default function NotesList({ promptId, promptOwnerId }) {
     }
   }, [pageIndex, lastIndex]);
 
-  const canGoPrev = safeIndex > 0;
+  const canGoPrev = safeIndex > 0 || Boolean(notesQuery.hasPreviousPage);
   const canGoNext =
     safeIndex < lastIndex ||
     (safeIndex === lastIndex && Boolean(notesQuery.hasNextPage));
@@ -174,9 +181,15 @@ export default function NotesList({ promptId, promptOwnerId }) {
     }
   }, [safeIndex, lastIndex, notesQuery]);
 
-  const handlePrevPage = useCallback(() => {
-    setPageIndex((i) => Math.max(0, i - 1));
-  }, []);
+  const handlePrevPage = useCallback(async () => {
+    if (safeIndex > 0) {
+      setPageIndex((i) => i - 1);
+      return;
+    }
+    if (notesQuery.hasPreviousPage) {
+      await notesQuery.fetchPreviousPage();
+    }
+  }, [safeIndex, notesQuery]);
 
   const handleSaveNote = (pId, nId, content) => {
     if (!nId) addMutation.mutate(content);
