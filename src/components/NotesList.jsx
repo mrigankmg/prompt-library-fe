@@ -10,6 +10,7 @@ import * as promptsApi from "../api/promptsApi";
 import { usePromptActions } from "../context/PromptActionsContext";
 import NoteEditor from "./NoteEditor";
 import NoteCard from "./NoteCard";
+import { ChevronDown, ChevronRight, NotebookPen } from "lucide-react";
 import PaginationFooter from "./PaginationFooter";
 
 const NOTES_SORT = "newest";
@@ -196,11 +197,6 @@ export default function NotesList({ promptId, promptOwnerId }) {
     return date.toLocaleDateString();
   };
 
-  const noteLabel =
-    isExpanded && notesQuery.data
-      ? `${loadedCount} note${loadedCount !== 1 ? "s" : ""}`
-      : "Notes";
-
   return (
     <div className="mt-4 pt-4 border-t-2 border-gray-300 dark:border-gray-700">
       <button
@@ -208,8 +204,8 @@ export default function NotesList({ promptId, promptOwnerId }) {
         onClick={() => setIsExpanded(!isExpanded)}
         className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm transition flex items-center gap-1 mb-3"
       >
-        📝 {noteLabel}
-        <span className="text-xs">{isExpanded ? "▼" : "▶"}</span>
+        <NotebookPen size={14} /> Notes
+        {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
       </button>
 
       {isExpanded && (

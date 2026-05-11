@@ -22,7 +22,8 @@ export default function PromptCard({ prompt }) {
     if (isPrivate) {
       setPendingAction({
         title: "Make prompt public",
-        message: "Are you sure you want to make this prompt public? Anyone will be able to view it.",
+        message:
+          "Are you sure you want to make this prompt public? Anyone will be able to view it.",
         confirmLabel: "Make public",
         onConfirm: () => onTogglePrivacy(prompt.id, true),
       });
@@ -35,7 +36,8 @@ export default function PromptCard({ prompt }) {
     setIsMenuOpen(false);
     setPendingAction({
       title: "Delete prompt",
-      message: "Are you sure you want to delete this prompt? This cannot be undone.",
+      message:
+        "Are you sure you want to delete this prompt? This cannot be undone.",
       confirmLabel: "Delete",
       danger: true,
       onConfirm: () => onDelete(prompt.id),
@@ -53,7 +55,10 @@ export default function PromptCard({ prompt }) {
         message={pendingAction?.message}
         confirmLabel={pendingAction?.confirmLabel}
         danger={pendingAction?.danger}
-        onConfirm={() => { pendingAction?.onConfirm(); setPendingAction(null); }}
+        onConfirm={() => {
+          pendingAction?.onConfirm();
+          setPendingAction(null);
+        }}
         onCancel={() => setPendingAction(null)}
       />
       <div className="flex justify-between items-start mb-3">
@@ -68,16 +73,23 @@ export default function PromptCard({ prompt }) {
               {prompt.title}
             </h3>
             <span
-              className={`text-xs font-medium px-2 py-1 rounded ${
+              className={`flex items-center text-xs font-medium px-2 py-1 rounded ${
                 isPrivate
                   ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                   : "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
               }`}
             >
-              {isPrivate
-                ? <><Lock className="inline w-3 h-3 mr-1" aria-hidden="true" />Private</>
-                : <><Globe className="inline w-3 h-3 mr-1" aria-hidden="true" />Public</>
-              }
+              {isPrivate ? (
+                <>
+                  <Lock className="inline w-3 h-3 mr-1" aria-hidden="true" />
+                  Private
+                </>
+              ) : (
+                <>
+                  <Globe className="inline w-3 h-3 mr-1" aria-hidden="true" />
+                  Public
+                </>
+              )}
             </span>
           </div>
         </div>
@@ -96,16 +108,24 @@ export default function PromptCard({ prompt }) {
                   onClick={handleTogglePrivacy}
                   className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 hover:cursor-pointer"
                 >
-                  {isPrivate
-                    ? <><Unlock className="w-4 h-4" aria-hidden="true" />Make public</>
-                    : <><Lock className="w-4 h-4" aria-hidden="true" />Make private</>
-                  }
+                  {isPrivate ? (
+                    <>
+                      <Unlock className="w-4 h-4" aria-hidden="true" />
+                      Make public
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" aria-hidden="true" />
+                      Make private
+                    </>
+                  )}
                 </button>
                 <button
                   onClick={handleDelete}
                   className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 hover:cursor-pointer"
                 >
-                  <Trash2 className="w-4 h-4" aria-hidden="true" />Delete
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
+                  Delete
                 </button>
               </div>
             )}
@@ -117,9 +137,10 @@ export default function PromptCard({ prompt }) {
       </p>
       <button
         onClick={handleCopy}
-        className="mt-4 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm transition hover:cursor-pointer"
+        className="mt-4 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center font-medium text-sm transition hover:cursor-pointer"
       >
-        <Clipboard className="inline w-4 h-4 mr-1" aria-hidden="true" />Copy to Clipboard
+        <Clipboard className="inline w-4 h-4 mr-1" aria-hidden="true" />
+        Copy to Clipboard
       </button>
       {prompt.metadata && <PromptMetadata metadata={prompt.metadata} />}
       {showRating ? (
