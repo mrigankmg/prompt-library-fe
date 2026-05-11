@@ -10,8 +10,14 @@ export const registerSchema = z
     firstName: z.string().min(1, "Please enter your first name"),
     lastName: z.string().min(1, "Please enter your last name"),
     email: z.string().min(1, "Please enter your email"),
-    password: z.string().min(1, "Please enter a password"),
-    passwordConfirm: z.string().min(1, "Please confirm your password"),
+    password: z
+      .string()
+      .min(8, "Password should be at least 8 characters long")
+      .max(128, "Password can't be longer than 128 characters"),
+    passwordConfirm: z
+      .string()
+      .min(8, "Password should be at least 8 characters long")
+      .max(128, "Password can't be longer than 128 characters"),
   })
   .refine((d) => d.password === d.passwordConfirm, {
     message: "Passwords do not match",

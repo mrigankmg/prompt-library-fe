@@ -6,20 +6,23 @@ export async function fetchPromptsPage({
   sortBy,
   cursor,
   limit,
+  direction = "forward",
 }) {
   const { data } = await apiClient.get("/api/v1/prompts", {
     params: {
       filter_by: filterBy,
       sort_by: sortBy,
-      direction: "forward",
+      direction,
       cursor: cursor || undefined,
       limit,
     },
   });
   return {
     items: (data.items || []).map(mapPromptRead),
-    next_cursor: data.next_cursor ?? null,
-    has_more: !!data.has_more,
+    next_cursor: data.page_info?.end_cursor ?? null,
+    prev_cursor: data.page_info?.start_cursor ?? null,
+    has_more: !!data.page_info?.has_next_page,
+    has_previous: !!data.page_info?.has_previous_page,
   };
 }
 
@@ -38,7 +41,7 @@ export async function updatePrompt(promptId, patch) {
 }
 
 export async function ratePrompt(promptId, rating) {
-  const { data } = await apiClient.post(`/api/v1/prompts/${promptId}/rate`, {
+  const { data } = await apiClient.put(`/api/v1/prompts/${promptId}/rate`, {
     rating,
   });
   return data;
@@ -61,10 +64,9 @@ export async function fetchNotesPage({ promptId, sortBy, cursor, limit }) {
 }
 
 export async function createNote(promptId, content) {
-  const { data } = await apiClient.post(
-    `/api/v1/prompts/${promptId}/notes`,
-    { content },
-  );
+  const { data } = await apiClient.post(`/api/v1/prompts/${promptId}/notes`, {
+    content,
+  });
   return mapNoteRead(data);
 }
 

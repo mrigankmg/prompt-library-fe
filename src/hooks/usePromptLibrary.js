@@ -47,12 +47,19 @@ export function usePromptLibrary() {
       promptsApi.fetchPromptsPage({
         filterBy,
         sortBy: sortOrder,
-        cursor: pageParam,
+        cursor: pageParam?.cursor,
+        direction: pageParam?.direction,
         limit: LIST_PAGE_SIZE,
       }),
     initialPageParam: undefined,
     getNextPageParam: (last) =>
-      last.has_more && last.next_cursor ? last.next_cursor : undefined,
+      last.has_more && last.next_cursor
+        ? { cursor: last.next_cursor, direction: "forward" }
+        : undefined,
+    getPreviousPageParam: (first) =>
+      first.has_previous && first.prev_cursor
+        ? { cursor: first.prev_cursor, direction: "backward" }
+        : undefined,
     enabled: listEnabled,
   });
 
@@ -71,7 +78,7 @@ export function usePromptLibrary() {
     }
   }, [pageIndex, lastIndex]);
 
-  const canGoPrev = safeIndex > 0;
+  const canGoPrev = safeIndex > 0 || Boolean(listQuery.hasPreviousPage);
   const canGoNext =
     safeIndex < lastIndex ||
     (safeIndex === lastIndex && Boolean(listQuery.hasNextPage));
@@ -87,9 +94,15 @@ export function usePromptLibrary() {
     }
   }, [safeIndex, lastIndex, listQuery]);
 
-  const handlePrevPage = useCallback(() => {
-    setPageIndex((i) => Math.max(0, i - 1));
-  }, []);
+  const handlePrevPage = useCallback(async () => {
+    if (safeIndex > 0) {
+      setPageIndex((i) => i - 1);
+      return;
+    }
+    if (listQuery.hasPreviousPage) {
+      await listQuery.fetchPreviousPage();
+    }
+  }, [safeIndex, listQuery]);
 
   const createMutation = useMutation({
     mutationFn: ({ title, content, ai_agent, is_private }) =>

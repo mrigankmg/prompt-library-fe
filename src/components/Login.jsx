@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
 import { loginSchema } from "../validation/schemas";
 import { inputClass } from "../utils/styles";
+import ErrorBanner from "./ErrorBanner";
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState(null);
 
   const {
     register,
@@ -16,11 +19,14 @@ export default function Login() {
   } = useForm({ resolver: zodResolver(loginSchema) });
 
   const onSubmit = async ({ email, password }) => {
+    setSubmitError(null);
     try {
       await login(email, password);
       navigate("/", { replace: true });
     } catch (error) {
-      console.log(error instanceof Error ? error.message : "Login failed.");
+      setSubmitError(
+        error instanceof Error ? error.message : "Incorrect email or password.",
+      );
     }
   };
 
@@ -30,6 +36,11 @@ export default function Login() {
         <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
           Login
         </h2>
+
+        <ErrorBanner
+          message={submitError}
+          onDismiss={() => setSubmitError(null)}
+        />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>

@@ -73,6 +73,17 @@ api.interceptors.response.use(
       );
     }
 
+    if (status === 400) {
+      return Promise.reject(
+        new ApiError(
+          extractErrorMessage(error.response),
+          "BAD_REQUEST",
+          400,
+          error.response && error.response.data,
+        ),
+      );
+    }
+
     return Promise.reject(
       new ApiError(
         extractErrorMessage(error.response),
@@ -98,6 +109,7 @@ function extractErrorMessage(response) {
 
   if (response && response.status === 401) return "Unauthorized.";
   if (response && response.status === 403) return "Forbidden.";
+  if (response && response.status === 400) return "Bad Request.";
   return "Unexpected error.";
 }
 

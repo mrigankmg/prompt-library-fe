@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
 import { registerSchema } from "../validation/schemas";
 import { inputClass } from "../utils/styles";
+import ErrorBanner from "./ErrorBanner";
 
 export default function Register() {
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState(null);
 
   const {
     register,
@@ -16,11 +19,13 @@ export default function Register() {
   } = useForm({ resolver: zodResolver(registerSchema) });
 
   const onSubmit = async ({ firstName, lastName, email, password }) => {
+    setSubmitError(null);
     try {
       await registerUser(firstName, lastName, email, password);
       navigate("/", { replace: true });
     } catch (error) {
-      console.log(
+      console.log(error.message);
+      setSubmitError(
         error instanceof Error ? error.message : "Registration failed.",
       );
     }
@@ -32,6 +37,11 @@ export default function Register() {
         <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
           Register
         </h2>
+
+        <ErrorBanner
+          message={submitError}
+          onDismiss={() => setSubmitError(null)}
+        />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
