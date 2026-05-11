@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Clipboard, Globe, Lock, Trash2, Unlock } from "lucide-react";
 import { usePromptActions } from "../context/PromptActionsContext";
+import ConfirmDialog from "./ConfirmDialog";
 import PromptMetadata from "./PromptMetadata";
 import StarRating from "./StarRating";
 import NotesList from "./NotesList";
@@ -9,6 +10,7 @@ export default function PromptCard({ prompt }) {
   const { userId, onDelete, onTogglePrivacy, onRatingSubmit } =
     usePromptActions();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
   const { isPrivate = true } = prompt;
 
   const handleCopy = () => {
@@ -17,18 +19,27 @@ export default function PromptCard({ prompt }) {
 
   const handleTogglePrivacy = () => {
     setIsMenuOpen(false);
-    if (isPrivate && confirm("Are you sure you want to make this prompt public?")) {
-      onTogglePrivacy(prompt.id, true);
-    } else if (!isPrivate) {
+    if (isPrivate) {
+      setPendingAction({
+        title: "Make prompt public",
+        message: "Are you sure you want to make this prompt public? Anyone will be able to view it.",
+        confirmLabel: "Make public",
+        onConfirm: () => onTogglePrivacy(prompt.id, true),
+      });
+    } else {
       onTogglePrivacy(prompt.id, false);
     }
   };
 
   const handleDelete = () => {
     setIsMenuOpen(false);
-    if (confirm("Are you sure you want to delete this prompt?")) {
-      onDelete(prompt.id);
-    }
+    setPendingAction({
+      title: "Delete prompt",
+      message: "Are you sure you want to delete this prompt? This cannot be undone.",
+      confirmLabel: "Delete",
+      danger: true,
+      onConfirm: () => onDelete(prompt.id),
+    });
   };
 
   const showNotes = !isPrivate;
@@ -36,6 +47,15 @@ export default function PromptCard({ prompt }) {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition">
+      <ConfirmDialog
+        isOpen={Boolean(pendingAction)}
+        title={pendingAction?.title}
+        message={pendingAction?.message}
+        confirmLabel={pendingAction?.confirmLabel}
+        danger={pendingAction?.danger}
+        onConfirm={() => { pendingAction?.onConfirm(); setPendingAction(null); }}
+        onCancel={() => setPendingAction(null)}
+      />
       <div className="flex justify-between items-start mb-3">
         <div>
           {userId && userId !== prompt.userId && (

@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { ThumbsUp, ThumbsDown, Trash2 } from "lucide-react";
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function NoteCard({
   note,
@@ -8,6 +10,8 @@ export default function NoteCard({
   onDeleteNote,
   formatDate,
 }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   const authorId = note.userId ?? promptOwnerId;
   const isOwnNote = authorId === currentUserId;
 
@@ -16,6 +20,15 @@ export default function NoteCard({
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-300 dark:border-gray-700">
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        title="Delete note"
+        message="Are you sure you want to delete this note? This cannot be undone."
+        confirmLabel="Delete"
+        danger
+        onConfirm={() => { setConfirmOpen(false); onDeleteNote(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
       <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">
         {isOwnNote ? "You" : "Another user"}
       </p>
@@ -29,7 +42,7 @@ export default function NoteCard({
             <button
               type="button"
               title="Delete note"
-              onClick={onDeleteNote}
+              onClick={() => setConfirmOpen(true)}
               className="rounded-md px-2 py-1 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition hover:cursor-pointer"
             >
               <Trash2 className="w-4 h-4" aria-hidden="true" />
