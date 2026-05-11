@@ -1,3 +1,4 @@
+import { FilePlus } from "lucide-react";
 import PaginationFooter from "./PaginationFooter";
 import PromptCard from "./PromptCard";
 
@@ -94,19 +95,7 @@ export default function PromptList({
         />
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center transition-colors duration-200">
           <div className="text-gray-600 dark:text-gray-300">
-            <svg
-              className="w-12 h-12 mx-auto mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 6v6m0 0v6m0-6h6m0 0h6m-6-6H6m0 0H0"
-              ></path>
-            </svg>
+            <FilePlus className="w-12 h-12 mx-auto mb-4" aria-hidden="true" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
             No prompts yet

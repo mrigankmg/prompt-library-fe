@@ -103,6 +103,22 @@ export default function NotesList({ promptId, promptOwnerId }) {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (noteId) => promptsApi.deleteNote(promptId, noteId),
+    onSuccess: (_data, noteId) => {
+      queryClient.setQueryData(notesQueryKey, (old) => {
+        if (!old?.pages) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: (page.items ?? []).filter((n) => n.id !== noteId),
+          })),
+        };
+      });
+    },
+  });
+
   const voteMutation = useMutation({
     mutationFn: ({ noteId, voteType }) =>
       promptsApi.voteOnNote(promptId, noteId, voteType),
@@ -217,6 +233,7 @@ export default function NotesList({ promptId, promptOwnerId }) {
                   onVoteNote={(voteType) =>
                     voteMutation.mutate({ noteId: note.id, voteType })
                   }
+                  onDeleteNote={() => deleteMutation.mutate(note.id)}
                   formatDate={formatDate}
                 />
               ))}

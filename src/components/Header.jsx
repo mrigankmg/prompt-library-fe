@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Home, Moon, Sun } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -17,7 +18,7 @@ export default function Header() {
               className="text-gray-900 dark:text-gray-100 hover:opacity-70 hover:cursor-pointer transition text-xl"
               title="Home"
             >
-              🏠
+              <Home className="w-5 h-5" aria-hidden="true" />
             </button>
             <p className="text-gray-600 dark:text-gray-300">
               {user ? `Hi ${user.first_name || "User"}!` : "Welcome!"}
@@ -54,7 +55,10 @@ export default function Header() {
               className="bg-white dark:bg-gray-800 shadow-md p-3 rounded-lg transition-all hover:cursor-pointer"
               title="Toggle theme"
             >
-              {isDark ? "☀️" : "🌙"}
+              {isDark
+                ? <Sun className="w-5 h-5 text-orange-400" aria-hidden="true" />
+                : <Moon className="w-5 h-5 text-gray-700" aria-hidden="true" />
+              }
             </button>
           </div>
         </div>

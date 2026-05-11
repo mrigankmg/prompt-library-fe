@@ -70,6 +70,10 @@ export async function createNote(promptId, content) {
   return mapNoteRead(data);
 }
 
+export async function deleteNote(promptId, noteId) {
+  await apiClient.delete(`/api/v1/prompts/${promptId}/notes/${noteId}`);
+}
+
 export async function voteOnNote(promptId, noteId, voteType) {
   const { data } = await apiClient.post(
     `/api/v1/prompts/${promptId}/notes/${noteId}/vote`,

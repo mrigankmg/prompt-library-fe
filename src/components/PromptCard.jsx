@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Clipboard, Globe, Lock, Trash2, Unlock } from "lucide-react";
 import { usePromptActions } from "../context/PromptActionsContext";
 import PromptMetadata from "./PromptMetadata";
 import StarRating from "./StarRating";
@@ -53,7 +54,10 @@ export default function PromptCard({ prompt }) {
                   : "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
               }`}
             >
-              {isPrivate ? "🔒 Private" : "🔓 Public"}
+              {isPrivate
+                ? <><Lock className="inline w-3 h-3 mr-1" aria-hidden="true" />Private</>
+                : <><Globe className="inline w-3 h-3 mr-1" aria-hidden="true" />Public</>
+              }
             </span>
           </div>
         </div>
@@ -72,13 +76,16 @@ export default function PromptCard({ prompt }) {
                   onClick={handleTogglePrivacy}
                   className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 hover:cursor-pointer"
                 >
-                  {isPrivate ? "🔓 Make public" : "🔒 Make private"}
+                  {isPrivate
+                    ? <><Unlock className="w-4 h-4" aria-hidden="true" />Make public</>
+                    : <><Lock className="w-4 h-4" aria-hidden="true" />Make private</>
+                  }
                 </button>
                 <button
                   onClick={handleDelete}
                   className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 hover:cursor-pointer"
                 >
-                  🗑️ Delete
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />Delete
                 </button>
               </div>
             )}
@@ -92,7 +99,7 @@ export default function PromptCard({ prompt }) {
         onClick={handleCopy}
         className="mt-4 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm transition hover:cursor-pointer"
       >
-        📋 Copy to Clipboard
+        <Clipboard className="inline w-4 h-4 mr-1" aria-hidden="true" />Copy to Clipboard
       </button>
       {prompt.metadata && <PromptMetadata metadata={prompt.metadata} />}
       {showRating ? (
