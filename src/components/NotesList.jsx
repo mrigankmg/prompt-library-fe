@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -8,6 +8,7 @@ import { LIST_PAGE_SIZE } from "../constants/constants";
 import { queryKeys } from "../query/keys";
 import * as promptsApi from "../api/promptsApi";
 import { usePromptActions } from "../context/PromptActionsContext";
+import { usePaginatedQuery } from "../hooks/usePaginatedQuery";
 import NoteEditor from "./NoteEditor";
 import NoteCard from "./NoteCard";
 import { ChevronDown, ChevronRight, NotebookPen } from "lucide-react";
@@ -44,7 +45,6 @@ export default function NotesList({ promptId, promptOwnerId }) {
   const queryClient = useQueryClient();
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0);
 
   const listParams = useMemo(
     () => ({ sortBy: NOTES_SORT, limit: LIST_PAGE_SIZE }),
@@ -75,30 +75,16 @@ export default function NotesList({ promptId, promptOwnerId }) {
     enabled: isExpanded && Boolean(promptId),
   });
 
-  useEffect(() => {
-    setPageIndex(0);
-  }, [promptId]);
-
-  const pages = notesQuery.data?.pages ?? [];
-  const lastIndex = Math.max(0, pages.length - 1);
-  const safeIndex = Math.min(pageIndex, lastIndex);
-  const paginatedNotes = pages[safeIndex]?.items ?? [];
-
-  useEffect(() => {
-    if (pageIndex > lastIndex && lastIndex >= 0) {
-      setPageIndex(lastIndex);
-    }
-  }, [pageIndex, lastIndex]);
-
-  const canGoPrev = safeIndex > 0 || Boolean(notesQuery.hasPreviousPage);
-  const canGoNext =
-    safeIndex < lastIndex ||
-    (safeIndex === lastIndex && Boolean(notesQuery.hasNextPage));
-
-  const loadedCount = useMemo(
-    () => pages.reduce((sum, p) => sum + (p.items?.length ?? 0), 0),
-    [pages],
-  );
+  const {
+    currentItems: paginatedNotes,
+    pageCount,
+    safeIndex,
+    canGoPrev,
+    canGoNext,
+    handleNextPage,
+    handlePrevPage,
+    resetPage,
+  } = usePaginatedQuery(notesQuery, promptId);
 
   const addMutation = useMutation({
     mutationFn: (content) => promptsApi.createNote(promptId, content),
@@ -107,7 +93,7 @@ export default function NotesList({ promptId, promptOwnerId }) {
         queryKey: ["prompts", promptId, "notes"],
       });
       setIsAddingNote(false);
-      setPageIndex(0);
+      resetPage();
     },
   });
 
@@ -170,27 +156,6 @@ export default function NotesList({ promptId, promptOwnerId }) {
     },
   });
 
-  const handleNextPage = useCallback(async () => {
-    if (safeIndex < lastIndex) {
-      setPageIndex((i) => i + 1);
-      return;
-    }
-    if (notesQuery.hasNextPage) {
-      await notesQuery.fetchNextPage();
-      setPageIndex((i) => i + 1);
-    }
-  }, [safeIndex, lastIndex, notesQuery]);
-
-  const handlePrevPage = useCallback(async () => {
-    if (safeIndex > 0) {
-      setPageIndex((i) => i - 1);
-      return;
-    }
-    if (notesQuery.hasPreviousPage) {
-      await notesQuery.fetchPreviousPage();
-    }
-  }, [safeIndex, notesQuery]);
-
   const handleSaveNote = (pId, nId, content) => {
     if (!nId) addMutation.mutate(content);
   };
@@ -247,7 +212,7 @@ export default function NotesList({ promptId, promptOwnerId }) {
                 />
               ))}
 
-              {(canGoPrev || canGoNext || pages.length > 1) && (
+              {(canGoPrev || canGoNext || pageCount > 1) && (
                 <PaginationFooter
                   variant="compact"
                   page={safeIndex + 1}

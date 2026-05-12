@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -9,6 +9,7 @@ import { LIST_PAGE_SIZE } from "../constants/constants";
 import { queryKeys } from "../query/keys";
 import * as promptsApi from "../api/promptsApi";
 import { SCOPE, SORT } from "../components/PromptList";
+import { usePaginatedQuery } from "./usePaginatedQuery";
 
 function nextRatingState(prompt, rating) {
   const prevUserRating = prompt.userRating ?? 0;
@@ -31,7 +32,6 @@ export function usePromptLibrary() {
 
   const [scope, setScope] = useState(SCOPE.MINE);
   const [sortOrder, setSortOrder] = useState(SORT.NEWEST);
-  const [pageIndex, setPageIndex] = useState(0);
 
   const filterBy = scope === SCOPE.MINE ? "own" : "public";
   const listEnabled =
@@ -63,46 +63,15 @@ export function usePromptLibrary() {
     enabled: listEnabled,
   });
 
-  useEffect(() => {
-    setPageIndex(0);
-  }, [filterBy, sortOrder]);
-
-  const pages = listQuery.data?.pages ?? [];
-  const lastIndex = Math.max(0, pages.length - 1);
-  const safeIndex = Math.min(pageIndex, lastIndex);
-  const currentItems = pages[safeIndex]?.items ?? [];
-
-  useEffect(() => {
-    if (pageIndex > lastIndex && lastIndex >= 0) {
-      setPageIndex(lastIndex);
-    }
-  }, [pageIndex, lastIndex]);
-
-  const canGoPrev = safeIndex > 0 || Boolean(listQuery.hasPreviousPage);
-  const canGoNext =
-    safeIndex < lastIndex ||
-    (safeIndex === lastIndex && Boolean(listQuery.hasNextPage));
-
-  const handleNextPage = useCallback(async () => {
-    if (safeIndex < lastIndex) {
-      setPageIndex((i) => i + 1);
-      return;
-    }
-    if (listQuery.hasNextPage) {
-      await listQuery.fetchNextPage();
-      setPageIndex((i) => i + 1);
-    }
-  }, [safeIndex, lastIndex, listQuery]);
-
-  const handlePrevPage = useCallback(async () => {
-    if (safeIndex > 0) {
-      setPageIndex((i) => i - 1);
-      return;
-    }
-    if (listQuery.hasPreviousPage) {
-      await listQuery.fetchPreviousPage();
-    }
-  }, [safeIndex, listQuery]);
+  const {
+    currentItems,
+    pageCount,
+    safeIndex,
+    canGoPrev,
+    canGoNext,
+    handleNextPage,
+    handlePrevPage,
+  } = usePaginatedQuery(listQuery, `${filterBy}:${sortOrder}`);
 
   const createMutation = useMutation({
     mutationFn: ({ title, content, ai_agent, is_private }) =>
@@ -217,7 +186,7 @@ export function usePromptLibrary() {
   const showPagination =
     !authGateMessage &&
     currentItems.length > 0 &&
-    (canGoPrev || canGoNext || pages.length > 1);
+    (canGoPrev || canGoNext || pageCount > 1);
 
   return {
     userId,
