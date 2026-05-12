@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { estimateTokens } from "../utils/metadata";
 import { promptFormSchema } from "../validation/schemas";
-import { inputClass } from "../utils/styles";
+import FormField from "./FormField";
 
 const MODEL_OPTIONS = [
   { value: "GPT-4", text: "GPT-4" },
@@ -59,22 +59,12 @@ export default function PromptForm({ onSave }) {
         Create New Prompt
       </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-            Title
-          </label>
-          <input
-            type="text"
-            {...register("title")}
-            placeholder="Enter prompt title"
-            className={inputClass(errors.title)}
-          />
-          {errors.title && (
-            <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-              {errors.title.message}
-            </p>
-          )}
-        </div>
+        <FormField
+          label="Title"
+          registration={register("title")}
+          error={errors.title}
+          placeholder="Enter prompt title"
+        />
 
         <div>
           <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
@@ -93,40 +83,23 @@ export default function PromptForm({ onSave }) {
         </div>
 
         {selectedModel === "Custom Model" && (
-          <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-              Custom Model Name
-            </label>
-            <input
-              type="text"
-              {...register("customModel")}
-              placeholder="Enter custom model name"
-              className={inputClass(errors.customModel)}
-            />
-            {errors.customModel && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors.customModel.message}
-              </p>
-            )}
-          </div>
+          <FormField
+            label="Custom Model Name"
+            registration={register("customModel")}
+            error={errors.customModel}
+            placeholder="Enter custom model name"
+          />
         )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-            Content
-          </label>
-          <textarea
-            {...register("content")}
-            placeholder="Enter prompt content"
-            rows="6"
-            className={`${inputClass(errors.content)} resize-none`}
-          />
-          {errors.content && (
-            <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-              {errors.content.message}
-            </p>
-          )}
-        </div>
+        <FormField
+          label="Content"
+          as="textarea"
+          registration={register("content")}
+          error={errors.content}
+          placeholder="Enter prompt content"
+          className="resize-none"
+          rows={6}
+        />
 
         <button
           type="submit"

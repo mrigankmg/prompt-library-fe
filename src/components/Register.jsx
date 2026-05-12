@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
 import { registerSchema } from "../validation/schemas";
-import { inputClass } from "../utils/styles";
 import ErrorBanner from "./ErrorBanner";
+import FormField from "./FormField";
 
 export default function Register() {
   const { register: registerUser } = useAuth();
@@ -44,90 +44,39 @@ export default function Register() {
         />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-              First Name
-            </label>
-            <input
-              type="text"
-              {...register("firstName")}
-              placeholder="Enter your first name"
-              className={inputClass(errors.firstName)}
-            />
-            {errors.firstName && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors.firstName.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-              Last Name
-            </label>
-            <input
-              type="text"
-              {...register("lastName")}
-              placeholder="Enter your last name"
-              className={inputClass(errors.lastName)}
-            />
-            {errors.lastName && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors.lastName.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              {...register("email")}
-              placeholder="Enter your email"
-              className={inputClass(errors.email)}
-            />
-            {errors.email && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              {...register("password")}
-              placeholder="Enter your password"
-              className={inputClass(errors.password)}
-            />
-            {errors.password && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              {...register("passwordConfirm")}
-              placeholder="Confirm your password"
-              className={inputClass(errors.passwordConfirm)}
-            />
-            {errors.passwordConfirm && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors.passwordConfirm.message}
-              </p>
-            )}
-          </div>
+          <FormField
+            label="First Name"
+            registration={register("firstName")}
+            error={errors.firstName}
+            placeholder="Enter your first name"
+          />
+          <FormField
+            label="Last Name"
+            registration={register("lastName")}
+            error={errors.lastName}
+            placeholder="Enter your last name"
+          />
+          <FormField
+            label="Email"
+            type="email"
+            registration={register("email")}
+            error={errors.email}
+            placeholder="Enter your email"
+          />
+          <FormField
+            label="Password"
+            type="password"
+            registration={register("password")}
+            error={errors.password}
+            placeholder="Enter your password"
+          />
+          <FormField
+            label="Confirm Password"
+            type="password"
+            registration={register("passwordConfirm")}
+            error={errors.passwordConfirm}
+            placeholder="Confirm your password"
+          />
 
           <button
             type="submit"
