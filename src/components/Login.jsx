@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
 import { loginSchema } from "../validation/schemas";
+import { submitButtonClass } from "../utils/styles";
 import ErrorBanner from "./ErrorBanner";
 import FormField from "./FormField";
 
@@ -61,7 +62,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105 hover:cursor-pointer active:scale-95 mt-6 disabled:opacity-50"
+            className={submitButtonClass}
           >
             Login
           </button>

@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { estimateTokens } from "../utils/metadata";
 import { promptFormSchema } from "../validation/schemas";
+import { submitButtonClass } from "../utils/styles";
 import FormField from "./FormField";
 
 const MODEL_OPTIONS = [
@@ -19,7 +20,7 @@ export default function PromptForm({ onSave }) {
     handleSubmit,
     watch,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(promptFormSchema),
     defaultValues: {
@@ -103,7 +104,8 @@ export default function PromptForm({ onSave }) {
 
         <button
           type="submit"
-          className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105 active:scale-95 hover:cursor-pointer"
+          disabled={isSubmitting}
+          className={submitButtonClass}
         >
           Save Prompt
         </button>
