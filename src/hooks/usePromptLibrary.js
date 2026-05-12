@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
-import { LIST_PAGE_SIZE } from "../constants/constants";
+import { LIST_PAGE_SIZE } from "../constants";
 import { queryKeys } from "../query/keys";
 import * as promptsApi from "../api/promptsApi";
 import { SCOPE, SORT } from "../components/PromptList";
