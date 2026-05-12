@@ -70,7 +70,7 @@ export default function AuthProvider({ children }) {
       try {
         await apiClient.post("/api/v1/auth/logout");
       } finally {
-        queryClient.removeQueries({ queryKey: ["prompts"] });
+        queryClient.removeQueries({ queryKey: queryKeys.prompts.root });
         queryClient.setQueryData(queryKeys.auth.me, null);
       }
     },
@@ -95,7 +95,7 @@ export default function AuthProvider({ children }) {
   useEffect(() => {
     registerAuthFailureHandler(() => {
       queryClient.setQueryData(queryKeys.auth.me, null);
-      queryClient.removeQueries({ queryKey: ["prompts"] });
+      queryClient.removeQueries({ queryKey: queryKeys.prompts.root });
     });
   }, [queryClient]);
 

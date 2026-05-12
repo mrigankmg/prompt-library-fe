@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -90,7 +90,7 @@ export default function NotesList({ promptId, promptOwnerId }) {
     mutationFn: (content) => promptsApi.createNote(promptId, content),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["prompts", promptId, "notes"],
+        queryKey: queryKeys.notes.root(promptId),
       });
       setIsAddingNote(false);
       resetPage();
@@ -118,7 +118,7 @@ export default function NotesList({ promptId, promptOwnerId }) {
       promptsApi.voteOnNote(promptId, noteId, voteType),
     onMutate: async ({ noteId, voteType }) => {
       await queryClient.cancelQueries({
-        queryKey: ["prompts", promptId, "notes"],
+        queryKey: queryKeys.notes.root(promptId),
       });
       const previous = queryClient.getQueryData(notesQueryKey);
       queryClient.setQueryData(notesQueryKey, (old) => {
@@ -160,20 +160,15 @@ export default function NotesList({ promptId, promptOwnerId }) {
     if (!nId) addMutation.mutate(content);
   };
 
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+  const handleVoteNote = useCallback(
+    (noteId, voteType) => voteMutation.mutate({ noteId, voteType }),
+    [voteMutation],
+  );
 
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
+  const handleDeleteNote = useCallback(
+    (noteId) => deleteMutation.mutate(noteId),
+    [deleteMutation],
+  );
 
   return (
     <div className="mt-4 pt-4 border-t-2 border-gray-300 dark:border-gray-700">
@@ -204,11 +199,8 @@ export default function NotesList({ promptId, promptOwnerId }) {
                   note={note}
                   promptOwnerId={promptOwnerId}
                   currentUserId={currentUserId}
-                  onVoteNote={(voteType) =>
-                    voteMutation.mutate({ noteId: note.id, voteType })
-                  }
-                  onDeleteNote={() => deleteMutation.mutate(note.id)}
-                  formatDate={formatDate}
+                  onVoteNote={handleVoteNote}
+                  onDeleteNote={handleDeleteNote}
                 />
               ))}
 

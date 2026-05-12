@@ -77,14 +77,14 @@ export function usePromptLibrary() {
     mutationFn: ({ title, content, ai_agent, is_private }) =>
       promptsApi.createPrompt({ title, content, ai_agent, is_private }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.prompts.root });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => promptsApi.deletePrompt(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.prompts.root });
     },
   });
 
@@ -92,7 +92,7 @@ export function usePromptLibrary() {
     mutationFn: ({ id, is_private }) =>
       promptsApi.updatePrompt(id, { is_private }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["prompts"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.prompts.root });
     },
   });
 
@@ -101,15 +101,15 @@ export function usePromptLibrary() {
       promptsApi.ratePrompt(promptId, rating),
     onMutate: async ({ promptId, rating }) => {
       await queryClient.cancelQueries({
-        queryKey: ["prompts", "list"],
+        queryKey: queryKeys.prompts.lists,
         exact: false,
       });
       const previous = queryClient.getQueriesData({
-        queryKey: ["prompts", "list"],
+        queryKey: queryKeys.prompts.lists,
         exact: false,
       });
       queryClient.setQueriesData(
-        { queryKey: ["prompts", "list"], exact: false },
+        { queryKey: queryKeys.prompts.lists, exact: false },
         (old) => {
           if (!old?.pages) return old;
           return {
@@ -133,7 +133,7 @@ export function usePromptLibrary() {
     onSuccess: (data, { promptId }) => {
       if (!data || typeof data !== "object") return;
       queryClient.setQueriesData(
-        { queryKey: ["prompts", "list"], exact: false },
+        { queryKey: queryKeys.prompts.lists, exact: false },
         (old) => {
           if (!old?.pages) return old;
           return {

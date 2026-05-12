@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ThumbsUp, ThumbsDown, Trash2 } from "lucide-react";
 import ConfirmDialog from "./ConfirmDialog";
+import { formatRelativeDate } from "../utils/metadata";
 
 export default function NoteCard({
   note,
@@ -8,7 +9,6 @@ export default function NoteCard({
   currentUserId,
   onVoteNote,
   onDeleteNote,
-  formatDate,
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -26,7 +26,7 @@ export default function NoteCard({
         message="Are you sure you want to delete this note? This cannot be undone."
         confirmLabel="Delete"
         danger
-        onConfirm={() => { setConfirmOpen(false); onDeleteNote(); }}
+        onConfirm={() => { setConfirmOpen(false); onDeleteNote(note.id); }}
         onCancel={() => setConfirmOpen(false)}
       />
       <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">
@@ -34,7 +34,7 @@ export default function NoteCard({
       </p>
       <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap mb-2">{note.content}</p>
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-        {formatDate(note.updatedAt || note.createdAt)}
+        {formatRelativeDate(note.updatedAt || note.createdAt)}
       </p>
       {(onVoteNote || (isOwnNote && onDeleteNote)) ? (
         <div className="mt-1 flex flex-wrap items-center justify-between gap-1">
@@ -53,7 +53,7 @@ export default function NoteCard({
               <button
                 type="button"
                 title={hasUpvoted ? "Remove upvote" : "Upvote"}
-                onClick={() => onVoteNote("upvote")}
+                onClick={() => onVoteNote(note.id, "upvote")}
                 className={`flex items-center gap-0.5 rounded-md px-2 py-1 text-sm transition hover:cursor-pointer ${
                   hasUpvoted
                     ? "bg-orange-100 dark:bg-orange-700/30 text-orange-600 dark:text-orange-400 ring-2 ring-orange-400/60"
@@ -68,7 +68,7 @@ export default function NoteCard({
               <button
                 type="button"
                 title={hasDownvoted ? "Remove downvote" : "Downvote"}
-                onClick={() => onVoteNote("downvote")}
+                onClick={() => onVoteNote(note.id, "downvote")}
                 className={`flex items-center gap-0.5 rounded-md px-2 py-1 text-sm transition hover:cursor-pointer ${
                   hasDownvoted
                     ? "bg-orange-100 dark:bg-orange-700/30 text-orange-600 dark:text-orange-400 ring-2 ring-orange-400/60"
