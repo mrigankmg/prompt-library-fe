@@ -5,7 +5,7 @@ export default function GuestRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return <div>Loading...</div>;
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated) return <Navigate to="/home" replace />;
 
   return children;
 }

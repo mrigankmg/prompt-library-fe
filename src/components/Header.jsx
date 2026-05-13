@@ -14,7 +14,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/home")}
               className="text-gray-900 dark:text-gray-100 hover:opacity-70 hover:cursor-pointer transition text-xl"
               title="Home"
             >

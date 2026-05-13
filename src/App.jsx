@@ -1,8 +1,9 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import GuestRoute from "./components/GuestRoute";
 import Header from "./components/Header";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import NotFound from "./components/NotFound";
 import PromptLibrary from "./components/PromptLibrary";
 import "./App.css";
 
@@ -12,7 +13,8 @@ export default function App() {
       <Header />
       <div className="flex-1 flex py-8 px-4">
         <Routes>
-          <Route path="/" element={<PromptLibrary />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<PromptLibrary />} />
           <Route
             path="/login"
             element={
@@ -29,6 +31,7 @@ export default function App() {
               </GuestRoute>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </div>

@@ -1,6 +1,7 @@
 export const queryKeys = {
   auth: {
     me: ["auth", "me"],
+    providers: ["auth", "providers"],
   },
   prompts: {
     root: ["prompts"],

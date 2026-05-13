@@ -7,6 +7,7 @@ import { loginSchema } from "../validation/schemas";
 import { submitButtonClass } from "../utils/styles";
 import ErrorBanner from "./ErrorBanner";
 import FormField from "./FormField";
+import OAuthProviderButtons from "./OAuthProviderButtons";
 
 export default function Login() {
   const { login } = useAuth();
@@ -67,6 +68,8 @@ export default function Login() {
             Login
           </button>
         </form>
+
+        <OAuthProviderButtons />
 
         <p className="text-center mt-6 text-gray-500 dark:text-gray-400">
           Don't have an account?{" "}
