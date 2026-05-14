@@ -22,11 +22,22 @@ export default function StarRating({ prompt, userRating, onRatingSubmit }) {
     return 0;
   };
 
+  const averageRatingLabel =
+    averageRating > 0
+      ? `Average rating ${averageRating.toFixed(1)} out of 5${
+          ratingCount ? ` from ${ratingCount} ${ratingCount === 1 ? "rating" : "ratings"}` : ""
+        }`
+      : "No ratings yet";
+
   return (
     <div className="mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 min-w-max">
-          <div className="flex gap-0.5">
+          <div
+            role="img"
+            aria-label={averageRatingLabel}
+            className="flex gap-0.5"
+          >
             {stars.map((star) => (
               <Star
                 key={`avg-${star}`}
@@ -35,11 +46,11 @@ export default function StarRating({ prompt, userRating, onRatingSubmit }) {
               />
             ))}
           </div>
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <span aria-hidden="true" className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {averageRating > 0 ? averageRating.toFixed(1) : "—"}
           </span>
           {ratingCount != null && ratingCount > 0 ? (
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span aria-hidden="true" className="text-xs text-gray-500 dark:text-gray-400">
               ({ratingCount})
             </span>
           ) : null}
@@ -47,23 +58,29 @@ export default function StarRating({ prompt, userRating, onRatingSubmit }) {
 
         {isAuthenticated && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span id={`user-rating-label-${prompt.id}`} className="text-xs text-gray-500 dark:text-gray-400">
               Your rating:
             </span>
-            <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
+            <div
+              role="radiogroup"
+              aria-labelledby={`user-rating-label-${prompt.id}`}
+              className="flex gap-1"
+              onMouseLeave={() => setHoverRating(0)}
+            >
               {stars.map((star) => (
                 <Star
                   key={`user-${star}`}
                   rating={star}
                   fillPercentage={star <= userRatingDisplay ? 1 : 0}
                   interactive={true}
+                  checked={star === userRating}
                   onClick={() => handleStarClick(star)}
                   onMouseEnter={() => setHoverRating(star)}
                 />
               ))}
             </div>
             {userRating > 0 && (
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+              <span aria-hidden="true" className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 {userRating}
               </span>
             )}

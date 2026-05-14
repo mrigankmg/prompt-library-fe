@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Clipboard, Globe, Lock, Trash2, Unlock } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Clipboard, Globe, Lock, MoreHorizontal, Trash2, Unlock } from "lucide-react";
 import { usePromptActions } from "../context/PromptActionsContext";
 import ConfirmDialog from "./ConfirmDialog";
 import PromptMetadata from "./PromptMetadata";
@@ -12,6 +12,40 @@ export default function PromptCard({ prompt }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const { isPrivate = true } = prompt;
+
+  const menuTriggerRef = useRef(null);
+  const menuRef = useRef(null);
+  const firstMenuItemRef = useRef(null);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    firstMenuItemRef.current?.focus();
+
+    const handleClickOutside = (e) => {
+      if (
+        menuRef.current?.contains(e.target) ||
+        menuTriggerRef.current?.contains(e.target)
+      ) {
+        return;
+      }
+      setIsMenuOpen(false);
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+        menuTriggerRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMenuOpen]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(prompt.content);
@@ -96,17 +130,29 @@ export default function PromptCard({ prompt }) {
         {userId === prompt.userId && (
           <div className="relative">
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-orange-600 dark:text-orange-400 hover:opacity-70 transition p-2 hover:cursor-pointer"
-              title="Options"
+              ref={menuTriggerRef}
+              type="button"
+              onClick={() => setIsMenuOpen((open) => !open)}
+              aria-label="Prompt options"
+              aria-haspopup="menu"
+              aria-expanded={isMenuOpen}
+              className="text-orange-600 dark:text-orange-400 hover:opacity-70 transition p-2 rounded hover:cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
             >
-              ⋯
+              <MoreHorizontal className="w-5 h-5" aria-hidden="true" />
             </button>
             {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-10">
+              <div
+                ref={menuRef}
+                role="menu"
+                aria-label="Prompt options"
+                className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-10"
+              >
                 <button
+                  ref={firstMenuItemRef}
+                  type="button"
+                  role="menuitem"
                   onClick={handleTogglePrivacy}
-                  className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 hover:cursor-pointer"
+                  className="w-full text-left px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 hover:cursor-pointer focus:outline-none focus-visible:bg-orange-50 dark:focus-visible:bg-orange-900/30"
                 >
                   {isPrivate ? (
                     <>
@@ -121,8 +167,10 @@ export default function PromptCard({ prompt }) {
                   )}
                 </button>
                 <button
+                  type="button"
+                  role="menuitem"
                   onClick={handleDelete}
-                  className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 hover:cursor-pointer"
+                  className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition flex items-center gap-2 hover:cursor-pointer focus:outline-none focus-visible:bg-orange-50 dark:focus-visible:bg-orange-900/30"
                 >
                   <Trash2 className="w-4 h-4" aria-hidden="true" />
                   Delete

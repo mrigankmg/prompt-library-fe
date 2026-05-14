@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Home, Menu, Moon, Sun, X } from "lucide-react";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -9,6 +10,11 @@ export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const reactId = useId();
+  const menuPanelId = `${reactId}-mobile-menu`;
+  const panelRef = useRef(null);
+
+  useFocusTrap(panelRef, menuOpen);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 640px)");
@@ -16,6 +22,24 @@ export default function Header() {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -95,6 +119,8 @@ export default function Header() {
               className="sm:hidden relative z-[60] w-6 h-6 text-gray-900 dark:text-gray-100 hover:opacity-70 hover:cursor-pointer transition"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
+              aria-haspopup="dialog"
+              aria-controls={menuPanelId}
             >
               <Menu
                 className={`absolute inset-0 w-6 h-6 transition-all duration-200 ${
@@ -121,8 +147,11 @@ export default function Header() {
             aria-hidden="true"
           />
           <div
+            ref={panelRef}
+            id={menuPanelId}
             className="fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-50 p-4 pt-16 flex flex-col gap-3"
             role="dialog"
+            aria-modal="true"
             aria-label="Menu"
           >
             {authButtons}

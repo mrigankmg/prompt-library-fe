@@ -68,10 +68,14 @@ export default function PromptForm({ onSave }) {
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+          <label
+            htmlFor="prompt-model"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2"
+          >
             Model Used
           </label>
           <select
+            id="prompt-model"
             {...register("selectedModel")}
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition"
           >
